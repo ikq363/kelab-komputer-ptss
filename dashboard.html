@@ -278,6 +278,28 @@
       font-weight: 700;
     }
 
+    /* Style Butang Print */
+    .btn-print {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-print:hover {
+      background: rgba(56, 189, 248, 0.3);
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
     .org-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -351,6 +373,84 @@
       .btn-logout, .btn-voting { width: 100%; }
       .org-header { flex-direction: column; align-items: flex-start; }
     }
+
+    /* CSS KHAS UNTUK MENCETAK (PRINT) */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+      }
+
+      body::before, body::after,
+      .profile-card,
+      .dashboard-content,
+      .btn-print,
+      .status-pill,
+      .total-votes-count {
+        display: none !important;
+      }
+
+      .container {
+        max-width: 100% !important;
+        margin: 0 !important;
+      }
+
+      .org-section {
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+      }
+
+      .org-title {
+        color: #000000 !important;
+        font-size: 22px !important;
+        text-align: center !important;
+        margin-bottom: 20px !important;
+        justify-content: center !important;
+      }
+
+      .org-grid {
+        display: block !important;
+      }
+
+      .org-card {
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #000000 !important;
+        margin-bottom: 12px !important;
+        page-break-inside: avoid !important;
+      }
+
+      .org-card.top-lead {
+        max-width: 100% !important;
+      }
+
+      .role-title {
+        color: #1e293b !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        padding-bottom: 4px !important;
+      }
+
+      .quota-badge {
+        background: #f1f5f9 !important;
+        color: #475569 !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+
+      .winner-item {
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+      }
+
+      .winner-name {
+        color: #0f172a !important;
+      }
+
+      .winner-votes {
+        color: #0284c7 !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -401,6 +501,13 @@
           <i class="fa-solid fa-sitemap" style="color: #a855f7;"></i>
           <span>Carta Organisasi Semasa</span>
         </div>
+        
+        <!-- Butang Cetak Tambahan -->
+        <button class="btn-print" id="printBtn">
+          <i class="fa-solid fa-print"></i>
+          <span>Cetak Senarai Jawatankuasa</span>
+        </button>
+
         <div class="status-pill" id="officialStatusPill">
           <div class="live-dot"></div>
           <span id="statusText">KEPUTUSAN TIDAK RASMI</span>
@@ -423,7 +530,6 @@
           <div class="role-title"><span>Setiausaha</span><span class="quota-badge">1 Orang</span></div>
           <div id="setiausahaContainer">Memuatkan...</div>
         </div>
-        <!-- Tambahan Kad Bendahari -->
         <div class="org-card">
           <div class="role-title"><span>Bendahari</span><span class="quota-badge">1 Orang</span></div>
           <div id="bendahariContainer">Memuatkan...</div>
@@ -570,7 +676,6 @@
         }
       });
 
-      // Hierarki Jawatan mengikut susunan keutamaan
       const positions = [
         { id: "pengarah", containerId: "pengarahContainer", required: 1 },
         { id: "pen_pengarah", containerId: "penolongContainer", required: 1 },
@@ -583,7 +688,6 @@
         { id: "aktiviti", containerId: "aktivitiContainer", required: 18 }
       ];
 
-      // Cache tempatan untuk simpan data setiap dokumen tally secara real-time
       const tallyData = {};
 
       positions.forEach(pos => {
@@ -596,9 +700,8 @@
       });
     }
 
-    // Fungsi rendering terpusat untuk mengelakkan pertindihan nama
     function renderAllPositions(positions, tallyData) {
-      const assignedMatrixSet = new Set(); // Menyimpan No. Matrik pemenang yang telah dipilih
+      const assignedMatrixSet = new Set();
 
       positions.forEach(pos => {
         const container = document.getElementById(pos.containerId);
@@ -611,7 +714,6 @@
           if (count > 0) totalVotesForPos += count;
         });
 
-        // Tapis pelajar yang BELUM memenangi sebarang jawatan di atasnya
         const eligibleCandidates = studentsList.filter(student => !assignedMatrixSet.has(student.matrixNo));
 
         const sortedCandidates = eligibleCandidates.map(student => {
@@ -626,13 +728,12 @@
           };
         }).sort((a, b) => b.count - a.count);
 
-        // Ambil pemenang mengikut kuota jawatan
         const topWinners = sortedCandidates.slice(0, pos.required).filter(c => c.count > 0);
 
         if (topWinners.length > 0) {
           let html = "";
           topWinners.forEach(winner => {
-            assignedMatrixSet.add(winner.matrixNo); // Kunci calon supaya tidak berulang di jawatan lain
+            assignedMatrixSet.add(winner.matrixNo);
             html += `
               <div class="winner-item">
                 <span class="winner-name">${winner.name}</span>
@@ -647,6 +748,12 @@
       });
     }
 
+    // Fungsi Cetak
+    document.getElementById("printBtn").addEventListener("click", () => {
+      window.print();
+    });
+
+    // Log keluar
     document.getElementById("logoutBtn").addEventListener("click", () => {
       localStorage.removeItem("userSession");
       window.location.href = "index.html";
