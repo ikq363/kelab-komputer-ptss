@@ -26,7 +26,6 @@
       overflow-x: hidden;
     }
 
-    /* Decorative background elements */
     body::before, body::after {
       content: '';
       position: absolute;
@@ -37,16 +36,8 @@
       z-index: 0;
       opacity: 0.35;
     }
-    body::before {
-      background: #4f46e5;
-      top: -100px;
-      left: -100px;
-    }
-    body::after {
-      background: #c026d3;
-      top: 50px;
-      right: -100px;
-    }
+    body::before { background: #4f46e5; top: -100px; left: -100px; }
+    body::after { background: #c026d3; top: 50px; right: -100px; }
 
     .container {
       max-width: 1000px;
@@ -55,7 +46,7 @@
       z-index: 1;
     }
 
-    /* Header Profile Card (Kotak Pengguna) */
+    /* Profile Header */
     .profile-card {
       background: rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(16px);
@@ -67,7 +58,7 @@
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-      margin-bottom: 30px;
+      margin-bottom: 24px;
     }
 
     .profile-info {
@@ -92,22 +83,41 @@
       font-size: 20px;
       font-weight: 700;
       color: #ffffff;
-      margin-bottom: 4px;
-      letter-spacing: -0.3px;
+      margin-bottom: 6px;
     }
 
-    .profile-details .matrix-tag {
+    .tags-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .matrix-tag, .vote-status-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .matrix-tag {
       background: rgba(168, 85, 247, 0.15);
       border: 1px solid rgba(168, 85, 247, 0.3);
       color: #c084fc;
-      padding: 4px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
+    }
+
+    .vote-status-badge.not-voted {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #fbbf24;
+    }
+
+    .vote-status-badge.voted {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #4ade80;
     }
 
     .btn-logout {
@@ -131,16 +141,13 @@
       transform: translateY(-2px);
     }
 
-    /* Kraf Kandungan Dashboard Utama */
+    /* Dashboard Main Container */
     .dashboard-content {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 20px;
       padding: 32px;
-    }
-
-    .welcome-banner {
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
     .welcome-banner h2 {
@@ -155,10 +162,9 @@
     .welcome-banner p {
       color: #94a3b8;
       font-size: 14px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
-    /* Button Pemilihan Jawatan */
     .btn-voting {
       display: inline-flex;
       align-items: center;
@@ -169,7 +175,6 @@
       color: #ffffff;
       font-size: 15px;
       font-weight: 700;
-      letter-spacing: 0.5px;
       text-decoration: none;
       border-radius: 14px;
       box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35);
@@ -180,14 +185,8 @@
     .btn-voting:hover {
       transform: translateY(-3px);
       box-shadow: 0 15px 30px rgba(99, 102, 241, 0.5);
-      filter: brightness(1.1);
     }
 
-    .btn-voting:active {
-      transform: translateY(-1px);
-    }
-
-    /* Gaya Jika Pengguna Dah Mengundi (Disabled) */
     .btn-voting.voted {
       background: rgba(34, 197, 94, 0.2);
       border: 1px solid rgba(34, 197, 94, 0.4);
@@ -197,23 +196,140 @@
       pointer-events: none;
     }
 
-    /* Responsif untuk skrin telefon bimbit */
+    /* Org Chart Section */
+    .org-section {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 32px;
+    }
+
+    .org-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 16px;
+    }
+
+    .org-title {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-pill {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #ef4444;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .total-votes-count {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .total-votes-count span {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    /* Grid Carta Organisasi */
+    .org-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .org-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .org-card.top-lead {
+      grid-column: 1 / -1;
+      max-width: 450px;
+      margin: 0 auto 10px auto;
+      background: rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.3);
+      text-align: center;
+    }
+
+    .role-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #a855f7;
+      margin-bottom: 12px;
+      letter-spacing: 0.8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .quota-badge {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      color: #cbd5e1;
+    }
+
+    .winner-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .winner-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .winner-votes {
+      font-size: 12px;
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
     @media (max-width: 640px) {
-      .profile-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-        padding: 20px;
-      }
-
-      .btn-logout {
-        width: 100%;
-        justify-content: center;
-      }
-
-      .btn-voting {
-        width: 100%;
-      }
+      .profile-card { flex-direction: column; align-items: flex-start; gap: 20px; }
+      .btn-logout, .btn-voting { width: 100%; }
+      .org-header { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
@@ -227,10 +343,16 @@
           <i class="fa-solid fa-user-graduate"></i>
         </div>
         <div class="profile-details">
-          <h1 id="studentName">Memuatkan nama...</h1>
-          <div class="matrix-tag">
-            <i class="fa-solid fa-id-badge"></i>
-            <span id="studentMatrix">---</span>
+          <h1 id="studentName">Memuatkan...</h1>
+          <div class="tags-group">
+            <div class="matrix-tag">
+              <i class="fa-solid fa-id-badge"></i>
+              <span id="studentMatrix">---</span>
+            </div>
+            <div class="vote-status-badge not-voted" id="userVoteBadge">
+              <i class="fa-solid fa-circle-notch fa-spin"></i>
+              <span>Semak Status...</span>
+            </div>
           </div>
         </div>
       </div>
@@ -241,13 +363,12 @@
       </button>
     </header>
 
-    <!-- Ruang Kandungan Utama Dashboard -->
+    <!-- Ruang Utama Dashboard -->
     <main class="dashboard-content">
       <div class="welcome-banner">
         <h2>Selamat Datang ke Dashboard</h2>
         <p>Sistem Pengurusan Program PTSS & Unit Kaunseling.</p>
 
-        <!-- Button SISTEM PEMILIHAN JAWATAN -->
         <a href="undian.html" id="votingBtn" class="btn-voting">
           <i class="fa-solid fa-check-to-slot"></i>
           <span id="votingBtnText">SISTEM PEMILIHAN JAWATAN</span>
@@ -255,12 +376,104 @@
         </a>
       </div>
     </main>
+
+    <!-- Seksyen Carta Organisasi Live -->
+    <section class="org-section">
+      <div class="org-header">
+        <div class="org-title">
+          <i class="fa-solid fa-sitemap" style="color: #a855f7;"></i>
+          <span>Carta Organisasi Semasa</span>
+        </div>
+        <div class="status-pill">
+          <div class="live-dot"></div>
+          <span>KEPUTUSAN TIDAK RASMI</span>
+        </div>
+        <div class="total-votes-count">
+          Jumlah Selesai Mengundi: <span id="totalVotersCount">0</span> Pelajar
+        </div>
+      </div>
+
+      <!-- Paparan Pemimpin Semasa Mengikut Jawatan -->
+      <div class="org-grid">
+        <!-- Pengarah Program -->
+        <div class="org-card top-lead">
+          <div class="role-title">
+            <span>Pengarah Program</span>
+            <span class="quota-badge">1 Orang</span>
+          </div>
+          <div id="pengarahContainer">Memuatkan...</div>
+        </div>
+
+        <!-- Penolong Pengarah Program -->
+        <div class="org-card">
+          <div class="role-title">
+            <span>Penolong Pengarah Program</span>
+            <span class="quota-badge">1 Orang</span>
+          </div>
+          <div id="penolongContainer">Memuatkan...</div>
+        </div>
+
+        <!-- Setiausaha -->
+        <div class="org-card">
+          <div class="role-title">
+            <span>Setiausaha</span>
+            <span class="quota-badge">1 Orang</span>
+          </div>
+          <div id="setiausahaContainer">Memuatkan...</div>
+        </div>
+
+        <!-- Jawatankuasa Rekabentuk & Hebahan -->
+        <div class="org-card">
+          <div class="role-title">
+            <span>JK Rekabentuk & Hebahan</span>
+            <span class="quota-badge">2 Orang</span>
+          </div>
+          <div id="rekabentukContainer">Memuatkan...</div>
+        </div>
+
+        <!-- Jawatankuasa Perlaksanaan Program -->
+        <div class="org-card">
+          <div class="role-title">
+            <span>JK Perlaksanaan Program</span>
+            <span class="quota-badge">2 Orang</span>
+          </div>
+          <div id="perlaksanaanContainer">Memuatkan...</div>
+        </div>
+
+        <!-- Jawatankuasa Pendaftaran -->
+        <div class="org-card">
+          <div class="role-title">
+            <span>JK Pendaftaran</span>
+            <span class="quota-badge">2 Orang</span>
+          </div>
+          <div id="pendaftaranContainer">Memuatkan...</div>
+        </div>
+
+        <!-- Jawatankuasa Fotografi & Teknikal -->
+        <div class="org-card">
+          <div class="role-title">
+            <span>JK Fotografi & Teknikal</span>
+            <span class="quota-badge">2 Orang</span>
+          </div>
+          <div id="fotografiContainer">Memuatkan...</div>
+        </div>
+
+        <!-- Jawatankuasa Perlaksanaan Aktiviti -->
+        <div class="org-card">
+          <div class="role-title">
+            <span>JK Perlaksanaan Aktiviti</span>
+            <span class="quota-badge">Selebihnya</span>
+          </div>
+          <div id="aktivitiContainer">Memuatkan...</div>
+        </div>
+      </div>
+    </section>
   </div>
 
-  <!-- Firebase Script (Modular ES6) -->
+  <!-- Firebase Integration Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // Firebase Configuration
     const firebaseConfig = {
@@ -273,26 +486,25 @@
       measurementId: "G-7BZDXS41V8"
     };
 
-    // Initialize Firebase & Firestore
+    // Initialize Firebase Services
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Semak Sesi Log Masuk daripada localStorage
+    // Semak Sesi Pengguna
     const userSession = localStorage.getItem("userSession");
 
     if (!userSession) {
       window.location.href = "index.html";
     } else {
       const student = JSON.parse(userSession);
+      document.getElementById("studentName").textContent = student.name || "Pelajar";
+      document.getElementById("studentMatrix").textContent = student.matrixNo || "---";
 
-      // Paparkan nama & nombor matrik asas dari LocalStorage
-      document.getElementById("studentName").textContent = student.name;
-      document.getElementById("studentMatrix").textContent = student.matrixNo;
-
-      // Semak status terkini dari Firestore
       checkStudentStatus(student.matrixNo);
+      listenLiveResults();
     }
 
+    // Semak Status Pengundian Serta-Merta dari Firestore
     async function checkStudentStatus(matrixNo) {
       try {
         const studentRef = doc(db, "registered_students", matrixNo);
@@ -300,32 +512,94 @@
 
         if (docSnap.exists()) {
           const data = docSnap.data();
-
-          // Kemaskini nama jika ada perubahan di Firestore
           document.getElementById("studentName").textContent = data.name;
 
-          // Semak jika pengguna sudah mengundi
+          const userBadge = document.getElementById("userVoteBadge");
+          const votingBtn = document.getElementById("votingBtn");
+          const votingBtnText = document.getElementById("votingBtnText");
+          const votingArrow = document.getElementById("votingArrow");
+
           if (data.hasVoted) {
-            const votingBtn = document.getElementById("votingBtn");
-            const votingBtnText = document.getElementById("votingBtnText");
-            const votingArrow = document.getElementById("votingArrow");
+            userBadge.className = "vote-status-badge voted";
+            userBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>Sudah Mengundi</span>`;
 
             votingBtn.classList.add("voted");
             votingBtn.removeAttribute("href");
             votingBtnText.textContent = "ANDA TELAH SELESAI MENGUNDI";
             votingArrow.className = "fa-solid fa-circle-check";
+          } else {
+            userBadge.className = "vote-status-badge not-voted";
+            userBadge.innerHTML = `<i class="fa-solid fa-clock"></i><span>Belum Mengundi</span>`;
           }
         } else {
-          // Jika rekod tiada dalam Firestore, paksa log keluar
           localStorage.removeItem("userSession");
           window.location.href = "index.html";
         }
       } catch (err) {
-        console.error("Ralat menyemak status Firestore:", err);
+        console.error("Ralat menyemak status pengundi:", err);
       }
     }
 
-    // Pengendali Log Keluar
+    // Mendengar Perubahan Undian secara Real-time
+    function listenLiveResults() {
+      // 1. Kira Jumlah Pengundi yang Selesai Mengundi
+      const studentsRef = collection(db, "registered_students");
+      const qVoted = query(studentsRef, where("hasVoted", "==", true));
+      
+      onSnapshot(qVoted, (snapshot) => {
+        document.getElementById("totalVotersCount").textContent = snapshot.size;
+      }, (error) => {
+        console.error("Ralat listener pengundi:", error);
+      });
+
+      // 2. Muat Naik Keputusan Undian Calon mengikut Jawatan
+      const candidatesRef = collection(db, "candidates");
+      onSnapshot(candidatesRef, (snapshot) => {
+        const candidates = [];
+        snapshot.forEach((doc) => {
+          candidates.push({ id: doc.id, ...doc.data() });
+        });
+
+        updateRoleLeaders(candidates, "Pengarah Program", "pengarahContainer", 1);
+        updateRoleLeaders(candidates, "Penolong Pengarah Program", "penolongContainer", 1);
+        updateRoleLeaders(candidates, "Setiausaha", "setiausahaContainer", 1);
+        updateRoleLeaders(candidates, "Jawatankuasa Rekabentuk & Hebahan", "rekabentukContainer", 2);
+        updateRoleLeaders(candidates, "Jawatankuasa Perlaksanaan Program", "perlaksanaanContainer", 2);
+        updateRoleLeaders(candidates, "Jawatankuasa Pendaftaran", "pendaftaranContainer", 2);
+        updateRoleLeaders(candidates, "Jawatankuasa Fotografi & Teknikal", "fotografiContainer", 2);
+        updateRoleLeaders(candidates, "Jawatankuasa Perlaksanaan Aktiviti", "aktivitiContainer", 99);
+      }, (error) => {
+        console.error("Ralat listener calon:", error);
+      });
+    }
+
+    // Kemaskini Paparan Calon Teratas mengikut Kuota
+    function updateRoleLeaders(candidates, roleName, containerId, quota) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const filtered = candidates.filter(c => c.position === roleName);
+
+      if (filtered.length > 0) {
+        filtered.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+        const winners = filtered.slice(0, quota);
+
+        let html = "";
+        winners.forEach(w => {
+          html += `
+            <div class="winner-item">
+              <span class="winner-name">${w.name || 'Calon'}</span>
+              <span class="winner-votes">${w.votes || 0} undi</span>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      } else {
+        container.innerHTML = `<div style="font-size:12px; color:#64748b;">Tiada data undian</div>`;
+      }
+    }
+
+    // Fungsi Log Keluar
     document.getElementById("logoutBtn").addEventListener("click", () => {
       localStorage.removeItem("userSession");
       window.location.href = "index.html";
