@@ -180,6 +180,7 @@
       box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35);
       transition: all 0.3s ease;
       border: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
     }
 
     .btn-voting:hover {
@@ -187,13 +188,19 @@
       box-shadow: 0 15px 30px rgba(99, 102, 241, 0.5);
     }
 
+    /* Style butang hijau semasa sudah mengundi tetapi masih Boleh Ditekan */
     .btn-voting.voted {
-      background: rgba(34, 197, 94, 0.2);
-      border: 1px solid rgba(34, 197, 94, 0.4);
+      background: rgba(34, 197, 94, 0.25);
+      border: 1px solid rgba(34, 197, 94, 0.5);
       color: #86efac;
-      box-shadow: none;
-      cursor: not-allowed;
-      pointer-events: none;
+      box-shadow: 0 8px 20px rgba(34, 197, 94, 0.2);
+    }
+
+    .btn-voting.voted:hover {
+      background: rgba(34, 197, 94, 0.4);
+      color: #ffffff;
+      transform: translateY(-3px);
+      box-shadow: 0 12px 25px rgba(34, 197, 94, 0.35);
     }
 
     /* Org Chart Section */
@@ -326,15 +333,18 @@
     }
 
     .winner-name {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       color: #ffffff;
+      text-align: left;
     }
 
     .winner-votes {
       font-size: 12px;
       color: #38bdf8;
       font-weight: 700;
+      white-space: nowrap;
+      margin-left: 10px;
     }
 
     @media (max-width: 640px) {
@@ -378,6 +388,7 @@
         <h2>Selamat Datang ke Dashboard</h2>
         <p>Sistem Pengurusan Program PTSS & Unit Kaunseling.</p>
 
+        <!-- Butang mengundi dipastikan sentiasa mempunyai href="undian.html" -->
         <a href="undian.html" id="votingBtn" class="btn-voting">
           <i class="fa-solid fa-check-to-slot"></i>
           <span id="votingBtnText">SISTEM PEMILIHAN JAWATAN</span>
@@ -431,7 +442,7 @@
           <div id="fotografiContainer">Memuatkan...</div>
         </div>
         <div class="org-card">
-          <div class="role-title"><span>JK Perlaksanaan Aktiviti</span><span class="quota-badge">Baki Calon</span></div>
+          <div class="role-title"><span>JK Perlaksanaan Aktiviti</span><span class="quota-badge">19 Orang</span></div>
           <div id="aktivitiContainer">Memuatkan...</div>
         </div>
       </div>
@@ -455,6 +466,40 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Senarai 30 Pelajar dari undian.html
+    const studentsList = [
+      { name: "MUHAMMAD IKQRAM ZULFIQQAR BIN IDRIS", matrixNo: "18DIT26F1128" },
+      { name: "NURFARISHA BINTI MOHD FAIRUZ", matrixNo: "18DAC26F1024" },
+      { name: "KISHOR A/L LINGESWARAN", matrixNo: "18DPM26F1010" },
+      { name: "'ALIAA HUSNA BINTI MOHAMMAD IZHAR", matrixNo: "18DIT26F1135" },
+      { name: "MUHAMAD HARIES BIN MUHAMAD HAFIZ", matrixNo: "18DIT26F1103" },
+      { name: "NUR DAMIA NATASYA BINTI ABDULLAH", matrixNo: "18DIT26F1083" },
+      { name: "HANG HAN", matrixNo: "18DIT26F1075" },
+      { name: "MUHAMAD AFIQ AIMAN BIN ZULKIPLI", matrixNo: "18DIT26F1113" },
+      { name: "NUR MIMHAH MIRZA", matrixNo: "18DKE26F1150" },
+      { name: "AUNI SYUHADA BINTI SALIM", matrixNo: "18DIT26F1062" },
+      { name: "KIRANT A/P SIVA KUMAR", matrixNo: "18DIT26F1061" },
+      { name: "ONG ZI REN", matrixNo: "18DKE26F1016" },
+      { name: "WONG ZHENG YUAN", matrixNo: "18DKM26F1012" },
+      { name: "SITI NUR BAHIYYAH BINTI SUHAIZAM", matrixNo: "18DEP26F1097" },
+      { name: "ENG JO YAN", matrixNo: "18DEV26F1006" },
+      { name: "NUR KHAYRA DAMIA BINTI HASRUL NIZAM", matrixNo: "18DUP26F1054" },
+      { name: "LEE HAN JIN", matrixNo: "18DIT26F1033" },
+      { name: "MUHAMMAD IRFAN HARITH BIN MOHD HERMAN", matrixNo: "18DIT26F1067" },
+      { name: "YEOH CHENG YI", matrixNo: "18DIT26F1095" },
+      { name: "INTAN MARLIA SYAFINA BINTI ABU SEMAN", matrixNo: "18DUP26F1002" },
+      { name: "RUBASERI", matrixNo: "18DUP26F1023" },
+      { name: "MUHAMMAD DANIEL FIRDAUS BIN MUHAMAD SUFIAN", matrixNo: "18DEPF1064" },
+      { name: "CHING JIN ZHE", matrixNo: "18DIT26F1016" },
+      { name: "MUHAMMAD IMAN SYAQIRIEN BIN MOHD IZANI", matrixNo: "18DKE26F1109" },
+      { name: "NUR NAJLAA BINTI RAHMAN", matrixNo: "18DIT26F1036" },
+      { name: "ROSFARHANA BINTI SHAMSUDDIN", matrixNo: "18DEP26F1009" },
+      { name: "MUHAMMAD SHAHRIZAL BIN SHAHIDAN", matrixNo: "18DKE26F1057" },
+      { name: "NUR SYAHIRA BINTI KAMAL HISYAM", matrixNo: "18DEP26F1011" },
+      { name: "TEOH QIAN HOOI", matrixNo: "18DIT26F1017" },
+      { name: "ONG SIM LOK", matrixNo: "18DIT26F1127" }
+    ];
+
     const userSession = localStorage.getItem("userSession");
 
     if (!userSession) {
@@ -470,54 +515,47 @@
       listenLiveResults();
     }
 
-    // 1. Dengar Real-time Status Diri Pelajar
+    // 1. Dengar Real-time Status Diri Pelajar dari koleksi user_votes
     function listenStudentStatus(matrixNo) {
-      const studentRef = doc(db, "registered_students", matrixNo);
+      const userVoteRef = doc(db, "user_votes", matrixNo);
 
-      onSnapshot(studentRef, (docSnap) => {
+      onSnapshot(userVoteRef, (docSnap) => {
+        const userBadge = document.getElementById("userVoteBadge");
+        const votingBtn = document.getElementById("votingBtn");
+        const votingBtnText = document.getElementById("votingBtnText");
+        const votingArrow = document.getElementById("votingArrow");
+
+        // Pastikan pautan butang sentiasa menghala ke undian.html
+        votingBtn.setAttribute("href", "undian.html");
+
         if (docSnap.exists()) {
-          const data = docSnap.data();
-          document.getElementById("studentName").textContent = data.name || "Pelajar";
+          userBadge.className = "vote-status-badge voted";
+          userBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>Sudah Mengundi</span>`;
 
-          const userBadge = document.getElementById("userVoteBadge");
-          const votingBtn = document.getElementById("votingBtn");
-          const votingBtnText = document.getElementById("votingBtnText");
-          const votingArrow = document.getElementById("votingArrow");
-
-          if (data.hasVoted === true) {
-            userBadge.className = "vote-status-badge voted";
-            userBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>Sudah Mengundi</span>`;
-
-            votingBtn.classList.add("voted");
-            votingBtn.removeAttribute("href");
-            votingBtnText.textContent = "ANDA TELAH SELESAI MENGUNDI";
-            votingArrow.className = "fa-solid fa-circle-check";
-          } else {
-            userBadge.className = "vote-status-badge not-voted";
-            userBadge.innerHTML = `<i class="fa-solid fa-clock"></i><span>Belum Mengundi</span>`;
-          }
+          votingBtn.classList.add("voted");
+          votingBtnText.textContent = "KEMAS KINI UNDIAN ANDA";
+          votingArrow.className = "fa-solid fa-pen-to-square";
         } else {
-          console.warn("Dokumen pelajar tidak wujud di Firestore bagi Matrix:", matrixNo);
+          userBadge.className = "vote-status-badge not-voted";
+          userBadge.innerHTML = `<i class="fa-solid fa-clock"></i><span>Belum Mengundi</span>`;
+
+          votingBtn.classList.remove("voted");
+          votingBtnText.textContent = "SISTEM PEMILIHAN JAWATAN";
+          votingArrow.className = "fa-solid fa-arrow-right";
         }
       }, (err) => {
-        console.error("Ralat listener pelajar:", err);
+        console.error("Ralat listener status pengundi:", err);
       });
     }
 
-    // 2. Dengar Real-time Keputusan Undian & Mengira Pengundi
+    // 2. Dengar Real-time Keputusan Undian dari koleksi tally
     function listenLiveResults() {
-      const TARGET_VOTERS = 30; // Tetapan 30 Pelajar
+      const TARGET_VOTERS = 30;
 
-      // Kira pengundi dari koleksi registered_students
-      const studentsRef = collection(db, "registered_students");
-      onSnapshot(studentsRef, (snapshot) => {
-        let votedCount = 0;
-
-        snapshot.forEach((doc) => {
-          if (doc.data().hasVoted === true) {
-            votedCount++;
-          }
-        });
+      // Kira jumlah pelajar yang dah mengundi
+      const votesColRef = collection(db, "user_votes");
+      onSnapshot(votesColRef, (snapshot) => {
+        const votedCount = snapshot.size;
 
         document.getElementById("votedCount").textContent = votedCount;
         document.getElementById("totalStudentsCount").textContent = TARGET_VOTERS;
@@ -534,66 +572,67 @@
         }
       });
 
-      // Muat naik calon mengikut jawatan
-      const candidatesRef = collection(db, "candidates");
-      onSnapshot(candidatesRef, (snapshot) => {
-        const candidates = [];
-        snapshot.forEach((doc) => {
-          const item = doc.data();
-          candidates.push({ id: doc.id, ...item });
+      // Senarai Jawatan & Kuota Pemenang Tertinggi
+      const positions = [
+        { id: "pengarah", containerId: "pengarahContainer", required: 1 },
+        { id: "pen_pengarah", containerId: "penolongContainer", required: 1 },
+        { id: "setiausaha", containerId: "setiausahaContainer", required: 1 },
+        { id: "rekabentuk", containerId: "rekabentukContainer", required: 2 },
+        { id: "perlaksanaan", containerId: "perlaksanaanContainer", required: 2 },
+        { id: "pendaftaran", containerId: "pendaftaranContainer", required: 2 },
+        { id: "fotografi", containerId: "fotografiContainer", required: 2 },
+        { id: "aktiviti", containerId: "aktivitiContainer", required: 19 }
+      ];
+
+      // Dengar perubahan dokumen dalam koleksi tally
+      positions.forEach(pos => {
+        const tallyRef = doc(db, "tally", pos.id);
+
+        onSnapshot(tallyRef, (snapshot) => {
+          const container = document.getElementById(pos.containerId);
+          if (!container) return;
+
+          const posVotes = snapshot.exists() ? snapshot.data() : {};
+          
+          let totalVotesForPos = 0;
+          Object.values(posVotes).forEach(count => {
+            if (count > 0) totalVotesForPos += count;
+          });
+
+          // Susun calon mengikut perolehan undi tertinggi
+          const sortedCandidates = studentsList.map(student => {
+            const count = posVotes[student.matrixNo] || 0;
+            const validCount = count < 0 ? 0 : count;
+            const percentage = totalVotesForPos > 0 ? ((validCount / totalVotesForPos) * 100).toFixed(1) : "0.0";
+            return {
+              name: student.name,
+              count: validCount,
+              percentage: percentage
+            };
+          }).sort((a, b) => b.count - a.count);
+
+          // Tapis calon tertinggi mengikut kuota jawatan
+          const topWinners = sortedCandidates.slice(0, pos.required).filter(c => c.count > 0);
+
+          if (topWinners.length > 0) {
+            let html = "";
+            topWinners.forEach(winner => {
+              html += `
+                <div class="winner-item">
+                  <span class="winner-name">${winner.name}</span>
+                  <span class="winner-votes">${winner.count} undi (${winner.percentage}%)</span>
+                </div>
+              `;
+            });
+            container.innerHTML = html;
+          } else {
+            container.innerHTML = `<div style="font-size:12px; color:#64748b; padding:4px 0;">Tiada undian direkodkan</div>`;
+          }
         });
-
-        // CETAK KETUA DATA CALON KE CONSOLE BROWSER UNTUK DEBUGGING
-        console.log("=== DATA CALON DARI FIRESTORE ===", candidates);
-
-        updateRoleLeaders(candidates, ["Pengarah Program", "Pengarah"], "pengarahContainer", 1);
-        updateRoleLeaders(candidates, ["Penolong Pengarah Program", "Penolong Pengarah"], "penolongContainer", 1);
-        updateRoleLeaders(candidates, ["Setiausaha"], "setiausahaContainer", 1);
-        updateRoleLeaders(candidates, ["Jawatankuasa Rekabentuk & Hebahan", "JK Rekabentuk & Hebahan", "Rekabentuk"], "rekabentukContainer", 2);
-        updateRoleLeaders(candidates, ["Jawatankuasa Perlaksanaan Program", "JK Perlaksanaan Program", "Perlaksanaan Program"], "perlaksanaanContainer", 2);
-        updateRoleLeaders(candidates, ["Jawatankuasa Pendaftaran", "JK Pendaftaran", "Pendaftaran"], "pendaftaranContainer", 2);
-        updateRoleLeaders(candidates, ["Jawatankuasa Fotografi & Teknikal", "JK Fotografi & Teknikal", "Fotografi"], "fotografiContainer", 2);
-        updateRoleLeaders(candidates, ["Jawatankuasa Perlaksanaan Aktiviti", "JK Perlaksanaan Aktiviti", "Aktiviti"], "aktivitiContainer", 999);
       });
     }
 
-    // Kemaskini Carta Organisasi (Fleksibel mengikut sebarang variasi jawatan)
-    function updateRoleLeaders(candidates, roleAliases, containerId, quota) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-
-      // Padankan nama jawatan tanpa mengira huruf besar/kecil
-      const filtered = candidates.filter(c => {
-        if (!c.position) return false;
-        const posClean = c.position.toString().trim().toLowerCase();
-        return roleAliases.some(alias => alias.toLowerCase() === posClean);
-      });
-
-      if (filtered.length > 0) {
-        filtered.sort((a, b) => {
-          const voteA = Number(a.votes || 0);
-          const voteB = Number(b.votes || 0);
-          if (voteB !== voteA) return voteB - voteA;
-          return (a.name || "").localeCompare(b.name || "");
-        });
-
-        const winners = filtered.slice(0, quota);
-
-        let html = "";
-        winners.forEach(w => {
-          html += `
-            <div class="winner-item">
-              <span class="winner-name">${w.name || 'Nama Calon'}</span>
-              <span class="winner-votes">${w.votes || 0} undi</span>
-            </div>
-          `;
-        });
-        container.innerHTML = html;
-      } else {
-        container.innerHTML = `<div style="font-size:12px; color:#64748b;">Tiada calon didaftarkan</div>`;
-      }
-    }
-
+    // Log keluar
     document.getElementById("logoutBtn").addEventListener("click", () => {
       localStorage.removeItem("userSession");
       window.location.href = "index.html";
