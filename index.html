@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistem Pengurusan Program PTSS - Log Masuk</title>
+  <title>Sistem Pengurusan Program PTSS - Log Masuk & Pendaftaran</title>
   
   <!-- Google Fonts & Font Awesome Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -91,7 +91,36 @@
     .title-area p {
       font-size: 13px;
       color: #94a3b8;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
+    }
+
+    /* Tab Switcher Style */
+    .tab-container {
+      display: flex;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     }
 
     .form-group {
@@ -132,7 +161,7 @@
       font-weight: 500;
       outline: none;
       transition: all 0.3s ease;
-      text-transform: uppercase; /* Paparan visual auto-capslock */
+      text-transform: uppercase;
     }
 
     .input-wrapper input::placeholder {
@@ -204,6 +233,14 @@
       color: #64748b;
     }
 
+    .form-section {
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
     @media (max-width: 480px) {
       .login-card {
         padding: 30px 20px;
@@ -226,20 +263,51 @@
       <p>Sistem Pengurusan Program PTSS & Kaunseling</p>
     </div>
 
+    <!-- Tab Switcher -->
+    <div class="tab-container">
+      <button class="tab-btn active" onclick="switchTab('signin')">Log Masuk</button>
+      <button class="tab-btn" onclick="switchTab('signup')">Daftar Akaun</button>
+    </div>
+
     <div id="alertBox" class="alert"></div>
 
-    <form id="loginForm">
+    <!-- Form Sign In -->
+    <form id="signInForm" class="form-section active">
       <div class="form-group">
-        <label for="matrixNo">Nombor Matrik Pelajar</label>
+        <label for="signinMatrix">Nombor Matrik Pelajar</label>
         <div class="input-wrapper">
-          <input type="text" id="matrixNo" placeholder="Contoh: 18DIT26F1128" required autocomplete="off">
+          <input type="text" id="signinMatrix" placeholder="Contoh: 18DIT26F1128" required autocomplete="off">
           <i class="fa-solid fa-id-card"></i>
         </div>
       </div>
 
-      <button type="submit" class="btn-submit" id="submitBtn">
+      <button type="submit" class="btn-submit" id="signInBtn">
         <span>Log Masuk</span>
         <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </form>
+
+    <!-- Form Sign Up -->
+    <form id="signUpForm" class="form-section">
+      <div class="form-group">
+        <label for="signupName">Nama Penuh (Huruf Besar)</label>
+        <div class="input-wrapper">
+          <input type="text" id="signupName" placeholder="NAMA PENUH SEPERTI REKOD" required autocomplete="off">
+          <i class="fa-solid fa-user"></i>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="signupMatrix">Nombor Matrik Pelajar</label>
+        <div class="input-wrapper">
+          <input type="text" id="signupMatrix" placeholder="Contoh: 18DIT26F1128" required autocomplete="off">
+          <i class="fa-solid fa-id-card"></i>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="signUpBtn">
+        <span>Daftar Akaun</span>
+        <i class="fa-solid fa-user-plus"></i>
       </button>
     </form>
 
@@ -248,9 +316,28 @@
     </div>
   </div>
 
-  <script>
-    // Senarai 30 Data Pelajar (Semua nama kini HURUF BESAR)
-    const studentsList = [
+  <!-- Firebase Script (Modular ES6) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLj5KhjrWRh9mGkHHArkhL7fKGhylrbTQ",
+      authDomain: "kelab-komputer-ptss.firebaseapp.com",
+      projectId: "kelab-komputer-ptss",
+      storageBucket: "kelab-komputer-ptss.firebasestorage.app",
+      messagingSenderId: "456747248595",
+      appId: "1:456747248595:web:fe457efde4d97d6241dd26",
+      measurementId: "G-7BZDXS41V8"
+    };
+
+    // Initialize Firebase & Firestore
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Senarai Master Data Pelajar (Untuk Verifikasi Utama)
+    const masterStudentsList = [
       { name: "MUHAMMAD IKQRAM ZULFIQQAR BIN IDRIS", matrixNo: "18DIT26F1128" },
       { name: "NURFARISHA BINTI MOHD FAIRUZ", matrixNo: "18DAC26F1024" },
       { name: "KISHOR A/L LINGESWARAN", matrixNo: "18DPM26F1010" },
@@ -284,15 +371,38 @@
     ];
 
     // Elemen DOM
-    const loginForm = document.getElementById('loginForm');
-    const matrixInput = document.getElementById('matrixNo');
+    const signInForm = document.getElementById('signInForm');
+    const signUpForm = document.getElementById('signUpForm');
     const alertBox = document.getElementById('alertBox');
-    const submitBtn = document.getElementById('submitBtn');
+    const signinMatrix = document.getElementById('signinMatrix');
+    const signupName = document.getElementById('signupName');
+    const signupMatrix = document.getElementById('signupMatrix');
+    const signInBtn = document.getElementById('signInBtn');
+    const signUpBtn = document.getElementById('signUpBtn');
 
-    // Auto-capslock secara langsung apabila pengguna menaip
-    matrixInput.addEventListener('input', (e) => {
-      e.target.value = e.target.value.toUpperCase();
+    // Auto-Uppercase input
+    [signinMatrix, signupName, signupMatrix].forEach(input => {
+      input.addEventListener('input', (e) => {
+        e.target.value = e.target.value.toUpperCase();
+      });
     });
+
+    // Fungsi Tukar Tab UI
+    window.switchTab = function(type) {
+      alertBox.style.display = 'none';
+      const tabs = document.querySelectorAll('.tab-btn');
+      tabs.forEach(btn => btn.classList.remove('active'));
+
+      if (type === 'signin') {
+        tabs[0].classList.add('active');
+        signInForm.classList.add('active');
+        signUpForm.classList.remove('active');
+      } else {
+        tabs[1].classList.add('active');
+        signUpForm.classList.add('active');
+        signInForm.classList.remove('active');
+      }
+    };
 
     function showAlert(message, type) {
       alertBox.textContent = message;
@@ -300,38 +410,98 @@
       alertBox.style.display = 'block';
     }
 
-    // Pengendali Log Masuk Tempatan
-    loginForm.addEventListener('submit', (e) => {
+    // 1. PENGENDALI PENDAFTARAN (SIGN UP)
+    signUpForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const inputMatrix = matrixInput.value.trim().toUpperCase();
+      const inputName = signupName.value.trim().toUpperCase();
+      const inputMatrix = signupMatrix.value.trim().toUpperCase();
 
-      if (!inputMatrix) {
-        showAlert("Sila masukkan Nombor Matrik anda.", "error");
+      if (!inputName || !inputMatrix) {
+        showAlert("Sila isi semua maklumat.", "error");
         return;
       }
 
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = `<span>Menyemak...</span>`;
+      signUpBtn.disabled = true;
+      signUpBtn.innerHTML = `<span>Memverifikasi...</span>`;
 
-      // Carian terus dalam array tempatan
-      const foundStudent = studentsList.find(
-        (student) => student.matrixNo.toUpperCase() === inputMatrix
+      // Semakan padanan nama dan nombor matrik dalam Master List
+      const validStudent = masterStudentsList.find(
+        (s) => s.matrixNo.toUpperCase() === inputMatrix && s.name.toUpperCase() === inputName
       );
 
-      if (foundStudent) {
-        showAlert(`Selamat Datang, ${foundStudent.name}!`, "success");
-        
-        // Simpan maklumat pelajar ke localStorage
-        localStorage.setItem("userSession", JSON.stringify(foundStudent));
+      if (!validStudent) {
+        showAlert("Nama atau Nombor Matrik tidak sepadan dengan rekod sah!", "error");
+        signUpBtn.disabled = false;
+        signUpBtn.innerHTML = `<span>Daftar Akaun</span> <i class="fa-solid fa-user-plus"></i>`;
+        return;
+      }
 
-        // Lencongkan ke dashboard selepas 1 saat
-        setTimeout(() => {
-          window.location.href = "dashboard.html";
-        }, 1000);
-      } else {
-        showAlert("Nombor Matrik tidak dijumpai dalam rekod.", "error");
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = `<span>Log Masuk</span> <i class="fa-solid fa-arrow-right"></i>`;
+      try {
+        const studentRef = doc(db, "registered_students", inputMatrix);
+        const docSnap = await getDoc(studentRef);
+
+        if (docSnap.exists()) {
+          showAlert("Nombor Matrik ini sudah mendaftar. Sila Log Masuk.", "error");
+        } else {
+          // Simpan ke Firestore
+          await setDoc(studentRef, {
+            name: inputName,
+            matrixNo: inputMatrix,
+            registeredAt: new Date().toISOString(),
+            hasVoted: false
+          });
+
+          showAlert("Pendaftaran Berjaya! Sila log masuk.", "success");
+          setTimeout(() => {
+            switchTab('signin');
+            signinMatrix.value = inputMatrix;
+          }, 1500);
+        }
+      } catch (err) {
+        console.error("Firestore Error:", err);
+        showAlert("Ralat sistem semasa mendaftar. Sila cuba lagi.", "error");
+      } finally {
+        signUpBtn.disabled = false;
+        signUpBtn.innerHTML = `<span>Daftar Akaun</span> <i class="fa-solid fa-user-plus"></i>`;
+      }
+    });
+
+    // 2. PENGENDALI LOG MASUK (SIGN IN)
+    signInForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const inputMatrix = signinMatrix.value.trim().toUpperCase();
+
+      if (!inputMatrix) {
+        showAlert("Sila masukkan Nombor Matrik.", "error");
+        return;
+      }
+
+      signInBtn.disabled = true;
+      signInBtn.innerHTML = `<span>Menyemak...</span>`;
+
+      try {
+        const studentRef = doc(db, "registered_students", inputMatrix);
+        const docSnap = await getDoc(studentRef);
+
+        if (docSnap.exists()) {
+          const studentData = docSnap.data();
+          showAlert(`Selamat Datang, ${studentData.name}!`, "success");
+
+          // Simpan maklumat sesi pengguna ke LocalStorage
+          localStorage.setItem("userSession", JSON.stringify(studentData));
+
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 1000);
+        } else {
+          showAlert("Akaun belum didaftarkan. Sila klik 'Daftar Akaun' dahulu.", "error");
+        }
+      } catch (err) {
+        console.error("Firestore Error:", err);
+        showAlert("Ralat sistem semasa log masuk. Sila cuba lagi.", "error");
+      } finally {
+        signInBtn.disabled = false;
+        signInBtn.innerHTML = `<span>Log Masuk</span> <i class="fa-solid fa-arrow-right"></i>`;
       }
     });
   </script>
