@@ -188,7 +188,6 @@
       box-shadow: 0 15px 30px rgba(99, 102, 241, 0.5);
     }
 
-    /* Style butang hijau semasa sudah mengundi tetapi masih Boleh Ditekan */
     .btn-voting.voted {
       background: rgba(34, 197, 94, 0.25);
       border: 1px solid rgba(34, 197, 94, 0.5);
@@ -388,7 +387,6 @@
         <h2>Selamat Datang ke Dashboard</h2>
         <p>Sistem Pengurusan Program PTSS & Unit Kaunseling.</p>
 
-        <!-- Butang mengundi dipastikan sentiasa mempunyai href="undian.html" -->
         <a href="undian.html" id="votingBtn" class="btn-voting">
           <i class="fa-solid fa-check-to-slot"></i>
           <span id="votingBtnText">SISTEM PEMILIHAN JAWATAN</span>
@@ -425,6 +423,11 @@
           <div class="role-title"><span>Setiausaha</span><span class="quota-badge">1 Orang</span></div>
           <div id="setiausahaContainer">Memuatkan...</div>
         </div>
+        <!-- Tambahan Kad Bendahari -->
+        <div class="org-card">
+          <div class="role-title"><span>Bendahari</span><span class="quota-badge">1 Orang</span></div>
+          <div id="bendahariContainer">Memuatkan...</div>
+        </div>
         <div class="org-card">
           <div class="role-title"><span>JK Rekabentuk & Hebahan</span><span class="quota-badge">2 Orang</span></div>
           <div id="rekabentukContainer">Memuatkan...</div>
@@ -442,7 +445,7 @@
           <div id="fotografiContainer">Memuatkan...</div>
         </div>
         <div class="org-card">
-          <div class="role-title"><span>JK Perlaksanaan Aktiviti</span><span class="quota-badge">19 Orang</span></div>
+          <div class="role-title"><span>JK Perlaksanaan Aktiviti</span><span class="quota-badge">18 Orang</span></div>
           <div id="aktivitiContainer">Memuatkan...</div>
         </div>
       </div>
@@ -466,7 +469,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Senarai 30 Pelajar dari undian.html
     const studentsList = [
       { name: "MUHAMMAD IKQRAM ZULFIQQAR BIN IDRIS", matrixNo: "18DIT26F1128" },
       { name: "NURFARISHA BINTI MOHD FAIRUZ", matrixNo: "18DAC26F1024" },
@@ -515,7 +517,6 @@
       listenLiveResults();
     }
 
-    // 1. Dengar Real-time Status Diri Pelajar dari koleksi user_votes
     function listenStudentStatus(matrixNo) {
       const userVoteRef = doc(db, "user_votes", matrixNo);
 
@@ -525,7 +526,6 @@
         const votingBtnText = document.getElementById("votingBtnText");
         const votingArrow = document.getElementById("votingArrow");
 
-        // Pastikan pautan butang sentiasa menghala ke undian.html
         votingBtn.setAttribute("href", "undian.html");
 
         if (docSnap.exists()) {
@@ -548,11 +548,9 @@
       });
     }
 
-    // 2. Dengar Real-time Keputusan Undian dari koleksi tally
     function listenLiveResults() {
       const TARGET_VOTERS = 30;
 
-      // Kira jumlah pelajar yang dah mengundi
       const votesColRef = collection(db, "user_votes");
       onSnapshot(votesColRef, (snapshot) => {
         const votedCount = snapshot.size;
@@ -572,67 +570,83 @@
         }
       });
 
-      // Senarai Jawatan & Kuota Pemenang Tertinggi
+      // Hierarki Jawatan mengikut susunan keutamaan
       const positions = [
         { id: "pengarah", containerId: "pengarahContainer", required: 1 },
         { id: "pen_pengarah", containerId: "penolongContainer", required: 1 },
         { id: "setiausaha", containerId: "setiausahaContainer", required: 1 },
+        { id: "bendahari", containerId: "bendahariContainer", required: 1 },
         { id: "rekabentuk", containerId: "rekabentukContainer", required: 2 },
         { id: "perlaksanaan", containerId: "perlaksanaanContainer", required: 2 },
         { id: "pendaftaran", containerId: "pendaftaranContainer", required: 2 },
         { id: "fotografi", containerId: "fotografiContainer", required: 2 },
-        { id: "aktiviti", containerId: "aktivitiContainer", required: 19 }
+        { id: "aktiviti", containerId: "aktivitiContainer", required: 18 }
       ];
 
-      // Dengar perubahan dokumen dalam koleksi tally
+      // Cache tempatan untuk simpan data setiap dokumen tally secara real-time
+      const tallyData = {};
+
       positions.forEach(pos => {
         const tallyRef = doc(db, "tally", pos.id);
 
         onSnapshot(tallyRef, (snapshot) => {
-          const container = document.getElementById(pos.containerId);
-          if (!container) return;
-
-          const posVotes = snapshot.exists() ? snapshot.data() : {};
-          
-          let totalVotesForPos = 0;
-          Object.values(posVotes).forEach(count => {
-            if (count > 0) totalVotesForPos += count;
-          });
-
-          // Susun calon mengikut perolehan undi tertinggi
-          const sortedCandidates = studentsList.map(student => {
-            const count = posVotes[student.matrixNo] || 0;
-            const validCount = count < 0 ? 0 : count;
-            const percentage = totalVotesForPos > 0 ? ((validCount / totalVotesForPos) * 100).toFixed(1) : "0.0";
-            return {
-              name: student.name,
-              count: validCount,
-              percentage: percentage
-            };
-          }).sort((a, b) => b.count - a.count);
-
-          // Tapis calon tertinggi mengikut kuota jawatan
-          const topWinners = sortedCandidates.slice(0, pos.required).filter(c => c.count > 0);
-
-          if (topWinners.length > 0) {
-            let html = "";
-            topWinners.forEach(winner => {
-              html += `
-                <div class="winner-item">
-                  <span class="winner-name">${winner.name}</span>
-                  <span class="winner-votes">${winner.count} undi (${winner.percentage}%)</span>
-                </div>
-              `;
-            });
-            container.innerHTML = html;
-          } else {
-            container.innerHTML = `<div style="font-size:12px; color:#64748b; padding:4px 0;">Tiada undian direkodkan</div>`;
-          }
+          tallyData[pos.id] = snapshot.exists() ? snapshot.data() : {};
+          renderAllPositions(positions, tallyData);
         });
       });
     }
 
-    // Log keluar
+    // Fungsi rendering terpusat untuk mengelakkan pertindihan nama
+    function renderAllPositions(positions, tallyData) {
+      const assignedMatrixSet = new Set(); // Menyimpan No. Matrik pemenang yang telah dipilih
+
+      positions.forEach(pos => {
+        const container = document.getElementById(pos.containerId);
+        if (!container) return;
+
+        const posVotes = tallyData[pos.id] || {};
+
+        let totalVotesForPos = 0;
+        Object.values(posVotes).forEach(count => {
+          if (count > 0) totalVotesForPos += count;
+        });
+
+        // Tapis pelajar yang BELUM memenangi sebarang jawatan di atasnya
+        const eligibleCandidates = studentsList.filter(student => !assignedMatrixSet.has(student.matrixNo));
+
+        const sortedCandidates = eligibleCandidates.map(student => {
+          const count = posVotes[student.matrixNo] || 0;
+          const validCount = count < 0 ? 0 : count;
+          const percentage = totalVotesForPos > 0 ? ((validCount / totalVotesForPos) * 100).toFixed(1) : "0.0";
+          return {
+            matrixNo: student.matrixNo,
+            name: student.name,
+            count: validCount,
+            percentage: percentage
+          };
+        }).sort((a, b) => b.count - a.count);
+
+        // Ambil pemenang mengikut kuota jawatan
+        const topWinners = sortedCandidates.slice(0, pos.required).filter(c => c.count > 0);
+
+        if (topWinners.length > 0) {
+          let html = "";
+          topWinners.forEach(winner => {
+            assignedMatrixSet.add(winner.matrixNo); // Kunci calon supaya tidak berulang di jawatan lain
+            html += `
+              <div class="winner-item">
+                <span class="winner-name">${winner.name}</span>
+                <span class="winner-votes">${winner.count} undi (${winner.percentage}%)</span>
+              </div>
+            `;
+          });
+          container.innerHTML = html;
+        } else {
+          container.innerHTML = `<div style="font-size:12px; color:#64748b; padding:4px 0;">Tiada undian direkodkan</div>`;
+        }
+      });
+    }
+
     document.getElementById("logoutBtn").addEventListener("click", () => {
       localStorage.removeItem("userSession");
       window.location.href = "index.html";
