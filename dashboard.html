@@ -187,6 +187,16 @@
       transform: translateY(-1px);
     }
 
+    /* Gaya Jika Pengguna Dah Mengundi (Disabled) */
+    .btn-voting.voted {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #86efac;
+      box-shadow: none;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
     /* Responsif untuk skrin telefon bimbit */
     @media (max-width: 640px) {
       .profile-card {
@@ -238,37 +248,87 @@
         <p>Sistem Pengurusan Program PTSS & Unit Kaunseling.</p>
 
         <!-- Button SISTEM PEMILIHAN JAWATAN -->
-        <a href="undian.html" class="btn-voting">
+        <a href="undian.html" id="votingBtn" class="btn-voting">
           <i class="fa-solid fa-check-to-slot"></i>
-          <span>SISTEM PEMILIHAN JAWATAN</span>
-          <i class="fa-solid fa-arrow-right"></i>
+          <span id="votingBtnText">SISTEM PEMILIHAN JAWATAN</span>
+          <i class="fa-solid fa-arrow-right" id="votingArrow"></i>
         </a>
       </div>
     </main>
   </div>
 
-  <script>
+  <!-- Firebase Script (Modular ES6) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLj5KhjrWRh9mGkHHArkhL7fKGhylrbTQ",
+      authDomain: "kelab-komputer-ptss.firebaseapp.com",
+      projectId: "kelab-komputer-ptss",
+      storageBucket: "kelab-komputer-ptss.firebasestorage.app",
+      messagingSenderId: "456747248595",
+      appId: "1:456747248595:web:fe457efde4d97d6241dd26",
+      measurementId: "G-7BZDXS41V8"
+    };
+
+    // Initialize Firebase & Firestore
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     // Semak Sesi Log Masuk daripada localStorage
     const userSession = localStorage.getItem("userSession");
 
     if (!userSession) {
-      // Jika tiada sesi log masuk, hantar semula ke halaman log masuk
       window.location.href = "index.html";
     } else {
-      // Tukar data JSON kepada objek JavaScript
       const student = JSON.parse(userSession);
 
-      // Paparkan nama dan nombor matrik pada header
+      // Paparkan nama & nombor matrik asas dari LocalStorage
       document.getElementById("studentName").textContent = student.name;
       document.getElementById("studentMatrix").textContent = student.matrixNo;
+
+      // Semak status terkini dari Firestore
+      checkStudentStatus(student.matrixNo);
     }
 
-    // Fungsi Log Keluar
+    async function checkStudentStatus(matrixNo) {
+      try {
+        const studentRef = doc(db, "registered_students", matrixNo);
+        const docSnap = await getDoc(studentRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+
+          // Kemaskini nama jika ada perubahan di Firestore
+          document.getElementById("studentName").textContent = data.name;
+
+          // Semak jika pengguna sudah mengundi
+          if (data.hasVoted) {
+            const votingBtn = document.getElementById("votingBtn");
+            const votingBtnText = document.getElementById("votingBtnText");
+            const votingArrow = document.getElementById("votingArrow");
+
+            votingBtn.classList.add("voted");
+            votingBtn.removeAttribute("href");
+            votingBtnText.textContent = "ANDA TELAH SELESAI MENGUNDI";
+            votingArrow.className = "fa-solid fa-circle-check";
+          }
+        } else {
+          // Jika rekod tiada dalam Firestore, paksa log keluar
+          localStorage.removeItem("userSession");
+          window.location.href = "index.html";
+        }
+      } catch (err) {
+        console.error("Ralat menyemak status Firestore:", err);
+      }
+    }
+
+    // Pengendali Log Keluar
     document.getElementById("logoutBtn").addEventListener("click", () => {
-      // Padamkan sesi log masuk
       localStorage.removeItem("userSession");
-      // Hantar semula ke halaman log masuk
-      window.location.href = "index.html"; 
+      window.location.href = "index.html";
     });
   </script>
 </body>
