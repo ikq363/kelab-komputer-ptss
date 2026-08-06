@@ -192,6 +192,7 @@
       justify-content: center;
       gap: 10px;
       margin-top: 20px;
+      text-decoration: none;
     }
 
     .btn-submit:hover {
@@ -205,9 +206,36 @@
       transform: none;
     }
 
+    /* Kumpulan Butang Tindakan Keputusan */
+    .action-buttons-group {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+
+    .action-buttons-group .btn-submit {
+      flex: 1;
+      margin-top: 0;
+      min-width: 200px;
+    }
+
+    .btn-dashboard {
+      background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-dashboard:hover {
+      box-shadow: 0 15px 25px rgba(37, 99, 235, 0.4);
+    }
+
     .btn-edit {
       background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
-      margin-bottom: 25px;
+      box-shadow: 0 10px 20px rgba(234, 179, 8, 0.3);
+    }
+
+    .btn-edit:hover {
+      box-shadow: 0 15px 25px rgba(234, 179, 8, 0.4);
     }
 
     /* Kad Ringkasan Pilihan Saya */
@@ -216,7 +244,7 @@
       border: 1px solid rgba(168, 85, 247, 0.3);
       border-radius: 16px;
       padding: 20px;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
     .my-vote-row {
@@ -332,9 +360,15 @@
         <div id="myVotesList"></div>
       </div>
 
-      <button type="button" class="btn-submit btn-edit" id="editVoteBtn">
-        <i class="fa-solid fa-pen-to-square"></i> Kemaskini / Edit Undian Anda
-      </button>
+      <!-- KUMPULAN BUTANG TINDAKAN -->
+      <div class="action-buttons-group">
+        <a href="dashboard.html" class="btn-submit btn-dashboard">
+          <i class="fa-solid fa-house"></i> Kembali ke Dashboard
+        </a>
+        <button type="button" class="btn-submit btn-edit" id="editVoteBtn">
+          <i class="fa-solid fa-pen-to-square"></i> Kemaskini / Edit Undian
+        </button>
+      </div>
 
       <!-- Peratusan Keseluruhan -->
       <div class="section-title">
