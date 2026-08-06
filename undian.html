@@ -101,6 +101,11 @@
       margin-bottom: 15px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       padding-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .position-title {
@@ -111,7 +116,17 @@
 
     .position-limit {
       font-size: 12px;
-      color: #94a3b8;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #cbd5e1;
+    }
+
+    .position-limit.valid {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: rgba(34, 197, 94, 0.4);
+      color: #86efac;
     }
 
     .candidates-grid {
@@ -189,7 +204,7 @@
       margin-bottom: 25px;
     }
 
-    /* Kad Summary Pilihan Saya */
+    /* Kad Ringkasan Pilihan Saya */
     .my-votes-card {
       background: rgba(168, 85, 247, 0.1);
       border: 1px solid rgba(168, 85, 247, 0.3);
@@ -223,7 +238,7 @@
       text-align: right;
     }
 
-    /* Bahagian Keputusan / Peratusan */
+    /* Keputusan / Peratusan */
     .results-container {
       display: none;
     }
@@ -256,11 +271,12 @@
     }
 
     .alert {
-      padding: 12px;
-      border-radius: 10px;
+      padding: 14px 18px;
+      border-radius: 12px;
       font-size: 13px;
       margin-bottom: 20px;
       display: none;
+      line-height: 1.5;
     }
 
     .alert-error {
@@ -366,22 +382,21 @@
       { name: "ONG SIM LOK", matrixNo: "18DIT26F1127" }
     ];
 
-    // Helper untuk cari nama berdasarkan matrixNo
     const getStudentName = (matrix) => {
       const found = studentsList.find(s => s.matrixNo === matrix);
       return found ? found.name : matrix;
     };
 
-    // 3. Senarai Jawatan & Had Pilihan
+    // 3. Senarai Jawatan & Had Pilihan Tepat (Dikemaskini Aktiviti: 20 Orang)
     const positions = [
-      { id: "pengarah", title: "PENGARAH PROGRAM", max: 1 },
-      { id: "pen_pengarah", title: "PENOLONG PENGARAH PROGRAM", max: 1 },
-      { id: "setiausaha", title: "SETIAUSAHA", max: 1 },
-      { id: "rekabentuk", title: "JAWATANKUASA REKABENTUK & HEBAHAN", max: 2 },
-      { id: "perlaksanaan", title: "JAWATANKUASA PERLAKSAAN PROGRAM", max: 2 },
-      { id: "pendaftaran", title: "JAWATANKUASA PENDAFTARAN", max: 2 },
-      { id: "fotografi", title: "JAWATANKUASA FOTOGRAFI & TEKNIKAL", max: 2 },
-      { id: "aktiviti", title: "JAWATANKUASA PERLAKSANAAN AKTIVITI", max: 18 }
+      { id: "pengarah", title: "PENGARAH PROGRAM", required: 1 },
+      { id: "pen_pengarah", title: "PENOLONG PENGARAH PROGRAM", required: 1 },
+      { id: "setiausaha", title: "SETIAUSAHA", required: 1 },
+      { id: "rekabentuk", title: "JAWATANKUASA REKABENTUK & HEBAHAN", required: 2 },
+      { id: "perlaksanaan", title: "JAWATANKUASA PERLAKSAAN PROGRAM", required: 2 },
+      { id: "pendaftaran", title: "JAWATANKUASA PENDAFTARAN", required: 2 },
+      { id: "fotografi", title: "JAWATANKUASA FOTOGRAFI & TEKNIKAL", required: 2 },
+      { id: "aktiviti", title: "JAWATANKUASA PERLAKSANAAN AKTIVITI", required: 20 }
     ];
 
     // 4. Bina Borang Secara Dinamik
@@ -391,14 +406,12 @@
       const card = document.createElement('div');
       card.className = 'position-card';
 
-      const limitText = pos.max === 1 ? 'Pilih 1 Orang' : `Pilih Maksimum ${pos.max} Orang`;
-
       let candidatesHTML = '';
       studentsList.forEach(student => {
-        const inputType = pos.max === 1 ? 'radio' : 'checkbox';
+        const inputType = pos.required === 1 ? 'radio' : 'checkbox';
         candidatesHTML += `
           <label class="candidate-label label-matrix-${student.matrixNo}">
-            <input type="${inputType}" name="${pos.id}" value="${student.matrixNo}" data-max="${pos.max}" data-pos="${pos.id}" class="vote-input pos-input-${pos.id}">
+            <input type="${inputType}" name="${pos.id}" value="${student.matrixNo}" data-req="${pos.required}" data-pos="${pos.id}" class="vote-input pos-input-${pos.id}">
             <span>${student.name}</span>
           </label>
         `;
@@ -407,7 +420,9 @@
       card.innerHTML = `
         <div class="position-header">
           <div class="position-title">${pos.title}</div>
-          <div class="position-limit">${limitText}</div>
+          <div class="position-limit" id="badge-${pos.id}">
+            Wajib Pilih: 0 / ${pos.required}
+          </div>
         </div>
         <div class="candidates-grid">
           ${candidatesHTML}
@@ -417,26 +432,22 @@
       container.appendChild(card);
     });
 
-    // FUNGSI UNTUK MENYEMBUNYIKAN NAMA CALON YANG DAH DIPILIH DEKAT JAWATAN LAIN
-    function updateCandidateVisibility() {
-      // Dapatkan semua pilihan yang telah dicentang dalam borang
+    // FUNGSI UNTUK MENYEMBUNYIKAN NAMA CALON YANG DAH DIPILIH DEKAT JAWATAN LAIN & KEMASKINI INDICATOR
+    function updateCandidateVisibilityAndBadges() {
       const allSelectedInputs = document.querySelectorAll('.vote-input:checked');
       
-      // Simpan matriks ID yang telah dipilih dan lokasi jawatannya
       const selectedMap = {}; // { matrixNo: positionId }
       allSelectedInputs.forEach(input => {
         selectedMap[input.value] = input.getAttribute('data-pos');
       });
 
-      // Kemaskini semula paparan semua jawatan
       positions.forEach(pos => {
+        // Kemaskini Sembunyi Option
         studentsList.forEach(student => {
           const matrix = student.matrixNo;
-          // Cari label khusus untuk calon dan jawatan ini
           const label = document.querySelector(`.pos-input-${pos.id}[value="${matrix}"]`)?.closest('.candidate-label');
           
           if (label) {
-            // Jika calon ini dipilih di jawatan LAIN, sembunyikan dia di jawatan INI
             if (selectedMap[matrix] && selectedMap[matrix] !== pos.id) {
               label.classList.add('hidden-option');
             } else {
@@ -444,30 +455,40 @@
             }
           }
         });
+
+        // Kemaskini Indicator / Lencana Status
+        const currentCount = document.querySelectorAll(`.pos-input-${pos.id}:checked`).length;
+        const badge = document.getElementById(`badge-${pos.id}`);
+        
+        if (currentCount === pos.required) {
+          badge.className = 'position-limit valid';
+          badge.innerHTML = `<i class="fa-solid fa-check"></i> Cukup: ${currentCount} / ${pos.required}`;
+        } else {
+          badge.className = 'position-limit';
+          badge.innerHTML = `Wajib Pilih: ${currentCount} / ${pos.required}`;
+        }
       });
     }
 
-    // Pasang Event Listener pada setiap Radio / Checkbox
+    // Pasang Event Listener
     document.querySelectorAll('.vote-input').forEach(input => {
       input.addEventListener('change', (e) => {
         const posId = e.target.getAttribute('data-pos');
-        const max = parseInt(e.target.getAttribute('data-max'));
+        const req = parseInt(e.target.getAttribute('data-req'));
 
-        // Kawalan had maksimum bagi checkbox
-        if (max > 1) {
+        if (req > 1) {
           const checkedCount = document.querySelectorAll(`.pos-input-${posId}:checked`).length;
-          if (checkedCount > max) {
+          if (checkedCount > req) {
             e.target.checked = false;
-            alert(`Anda hanya boleh memilih maksimum ${max} orang untuk jawatan ini.`);
+            alert(`Maksimum pilihan untuk jawatan ini ialah ${req} orang sahaja.`);
           }
         }
 
-        // Kemaskini ketersediaan calon di jawatan lain
-        updateCandidateVisibility();
+        updateCandidateVisibilityAndBadges();
       });
     });
 
-    // 5. Semak Sama Ada Pengguna Dah Mengundi Sebelumnya
+    // 5. Semak Sama Ada Pengguna Dah Mengundi
     let userVotesHistory = JSON.parse(localStorage.getItem('userVotesHistory')) || {};
     let myCurrentVotes = userVotesHistory[currentUser.matrixNo] || null;
 
@@ -487,7 +508,7 @@
       renderResults();
     }
 
-    // 6. Papar Senarai Calon Yang Telah Diundi Oleh Pengguna
+    // 6. Papar Senarai Pilihan Saya
     function renderMyVotesSummary() {
       const myVotesList = document.getElementById('myVotesList');
       myVotesList.innerHTML = '';
@@ -500,7 +521,7 @@
 
         myVotesList.innerHTML += `
           <div class="my-vote-row">
-            <span class="my-vote-position">${pos.title}</span>
+            <span class="my-vote-position">${pos.title} (${selectedMatrices.length}/${pos.required})</span>
             <span class="my-vote-names">${names}</span>
           </div>
         `;
@@ -512,7 +533,6 @@
       document.getElementById('voteForm').style.display = 'block';
       document.getElementById('resultsContainer').style.display = 'none';
 
-      // Load balik pilihan lama pengguna ke borang
       myCurrentVotes = userVotesHistory[currentUser.matrixNo] || {};
 
       // Reset borang
@@ -526,30 +546,36 @@
         });
       });
 
-      // Refresh elemen sembunyi
-      updateCandidateVisibility();
+      updateCandidateVisibilityAndBadges();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // 8. Pengendali Penghantaran Borang Undian
+    // 8. Pengendali Penghantaran Borang (Penguatkuasaan Undian Cukup/Wajib)
     document.getElementById('voteForm').addEventListener('submit', (e) => {
       e.preventDefault();
 
-      // Semak sama ada semua jawatan sudah diundi
-      for (let pos of positions) {
-        const selected = document.querySelectorAll(`.pos-input-${pos.id}:checked`);
-        if (selected.length === 0) {
-          const alertBox = document.getElementById('alertBox');
-          alertBox.textContent = `Sila buat sekurang-kurangnya 1 pilihan untuk ${pos.title}.`;
-          alertBox.style.display = 'block';
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          return;
+      let unfulfilledPositions = [];
+
+      // Semak setiap jawatan mesti mencukupi jumlah kuota yang ditetapkan
+      positions.forEach(pos => {
+        const selectedCount = document.querySelectorAll(`.pos-input-${pos.id}:checked`).length;
+        if (selectedCount !== pos.required) {
+          unfulfilledPositions.push(`- <strong>${pos.title}</strong>: Diundi ${selectedCount} daripada ${pos.required} orang yang diperlukan.`);
         }
+      });
+
+      const alertBox = document.getElementById('alertBox');
+
+      if (unfulfilledPositions.length > 0) {
+        alertBox.innerHTML = `<strong>Sila lengkapkan jumlah undian bagi jawatan berikut:</strong><br>` + unfulfilledPositions.join('<br>');
+        alertBox.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
       }
 
-      document.getElementById('alertBox').style.display = 'none';
+      alertBox.style.display = 'none';
 
-      // Tolak undian lama pengguna (jika ini tindakan Edit) dari simpanan global
+      // Tolak undian lama jika dalam mod edit
       let votesData = JSON.parse(localStorage.getItem('votesData')) || {};
       const previousVotes = userVotesHistory[currentUser.matrixNo];
 
@@ -579,16 +605,15 @@
         });
       });
 
-      // Simpan data terkini ke LocalStorage
+      // Simpan data
       userVotesHistory[currentUser.matrixNo] = newMyVotes;
       localStorage.setItem('userVotesHistory', JSON.stringify(userVotesHistory));
       localStorage.setItem('votesData', JSON.stringify(votesData));
 
-      // Tunjuk paparan keputusan
       showAlreadyVotedState();
     });
 
-    // 9. Fungsi Pengiraan Peratusan & Paparan Keputusan Keseluruhan
+    // 9. Fungsi Keputusan Keseluruhan
     function renderResults() {
       const votesData = JSON.parse(localStorage.getItem('votesData')) || {};
       const resultsContent = document.getElementById('resultsContent');
@@ -604,7 +629,7 @@
           <div class="position-card">
             <div class="position-header">
               <div class="position-title">${pos.title}</div>
-              <div class="position-limit">Jumlah Undi Diterima: ${totalVotesForPosition}</div>
+              <div class="position-limit">Jumlah Undi: ${totalVotesForPosition}</div>
             </div>
         `;
 
@@ -626,7 +651,7 @@
                     <span><strong>${cand.count} undi</strong> (${cand.percentage}%)</span>
                   </div>
                   <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" style="style: width: ${cand.percentage}%"></div>
+                    <div class="progress-bar-fill" style="width: ${cand.percentage}%"></div>
                   </div>
                 </div>
               `;
@@ -638,7 +663,6 @@
         resultsContent.innerHTML += html;
       });
 
-      // Animasi bar keputusan
       setTimeout(() => {
         document.querySelectorAll('.progress-bar-fill').forEach(bar => {
           const w = bar.getAttribute('style').match(/width:\s*([\d.]+)%/);
