@@ -132,7 +132,7 @@
       font-weight: 500;
       outline: none;
       transition: all 0.3s ease;
-      text-transform: uppercase;
+      text-transform: uppercase; /* Paparan visual auto-capslock */
     }
 
     .input-wrapper input::placeholder {
@@ -249,19 +249,19 @@
   </div>
 
   <script>
-    // Senarai 30 Data Pelajar
+    // Senarai 30 Data Pelajar (Semua nama kini HURUF BESAR)
     const studentsList = [
       { name: "MUHAMMAD IKQRAM ZULFIQQAR BIN IDRIS", matrixNo: "18DIT26F1128" },
-      { name: "Nurfarisha Binti Mohd Fairuz", matrixNo: "18DAC26F1024" },
-      { name: "Kishor A/L Lingeswaran", matrixNo: "18DPM26F1010" },
-      { name: "'Aliaa Husna binti mohammad izhar", matrixNo: "18DIT26F1135" },
+      { name: "NURFARISHA BINTI MOHD FAIRUZ", matrixNo: "18DAC26F1024" },
+      { name: "KISHOR A/L LINGESWARAN", matrixNo: "18DPM26F1010" },
+      { name: "'ALIAA HUSNA BINTI MOHAMMAD IZHAR", matrixNo: "18DIT26F1135" },
       { name: "MUHAMAD HARIES BIN MUHAMAD HAFIZ", matrixNo: "18DIT26F1103" },
       { name: "NUR DAMIA NATASYA BINTI ABDULLAH", matrixNo: "18DIT26F1083" },
       { name: "HANG HAN", matrixNo: "18DIT26F1075" },
-      { name: "Muhamad Afiq Aiman Bin Zulkipli", matrixNo: "18DIT26F1113" },
-      { name: "Nur Mimhah Mirza", matrixNo: "18DKE26F1150" },
-      { name: "Auni Syuhada Binti Salim", matrixNo: "18DIT26F1062" },
-      { name: "KIRANT a/p SIVA KUMAR", matrixNo: "18DIT26F1061" },
+      { name: "MUHAMAD AFIQ AIMAN BIN ZULKIPLI", matrixNo: "18DIT26F1113" },
+      { name: "NUR MIMHAH MIRZA", matrixNo: "18DKE26F1150" },
+      { name: "AUNI SYUHADA BINTI SALIM", matrixNo: "18DIT26F1062" },
+      { name: "KIRANT A/P SIVA KUMAR", matrixNo: "18DIT26F1061" },
       { name: "ONG ZI REN", matrixNo: "18DKE26F1016" },
       { name: "WONG ZHENG YUAN", matrixNo: "18DKM26F1012" },
       { name: "SITI NUR BAHIYYAH BINTI SUHAIZAM", matrixNo: "18DEP26F1097" },
@@ -288,6 +288,11 @@
     const matrixInput = document.getElementById('matrixNo');
     const alertBox = document.getElementById('alertBox');
     const submitBtn = document.getElementById('submitBtn');
+
+    // Auto-capslock secara langsung apabila pengguna menaip
+    matrixInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.toUpperCase();
+    });
 
     function showAlert(message, type) {
       alertBox.textContent = message;
