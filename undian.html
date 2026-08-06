@@ -199,6 +199,12 @@
       box-shadow: 0 15px 25px rgba(99, 102, 241, 0.4);
     }
 
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .btn-edit {
       background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
       margin-bottom: 25px;
@@ -332,13 +338,39 @@
 
       <!-- Peratusan Keseluruhan -->
       <div class="section-title">
-        <i class="fa-solid fa-chart-pie"></i> Keputusan & Peratusan Undian Semasa
+        <i class="fa-solid fa-chart-pie"></i> Keputusan & Peratusan Undian Semasa (Firestore Live)
       </div>
       <div id="resultsContent"></div>
     </div>
   </div>
 
-  <script>
+  <!-- FIREBASE SDK MODUL -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      doc, 
+      setDoc, 
+      getDoc, 
+      increment, 
+      onSnapshot 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Configuration Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLj5KhjrWRh9mGkHHArkhL7fKGhylrbTQ",
+      authDomain: "kelab-komputer-ptss.firebaseapp.com",
+      projectId: "kelab-komputer-ptss",
+      storageBucket: "kelab-komputer-ptss.firebasestorage.app",
+      messagingSenderId: "456747248595",
+      appId: "1:456747248595:web:fe457efde4d97d6241dd26",
+      measurementId: "G-7BZDXS41V8"
+    };
+
+    // Initialize Firebase & Firestore
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     // 1. Semak Pengguna Log Masuk
     const currentUser = JSON.parse(localStorage.getItem('userSession'));
     if (!currentUser) {
@@ -387,7 +419,7 @@
       return found ? found.name : matrix;
     };
 
-    // 3. Senarai Jawatan & Had Pilihan Tepat (Aktiviti: 19 Orang)
+    // 3. Senarai Jawatan & Had Kuota Pilihan Tepat
     const positions = [
       { id: "pengarah", title: "PENGARAH PROGRAM", required: 1 },
       { id: "pen_pengarah", title: "PENOLONG PENGARAH PROGRAM", required: 1 },
@@ -432,7 +464,7 @@
       container.appendChild(card);
     });
 
-    // FUNGSI UNTUK MENYEMBUNYIKAN NAMA CALON YANG DAH DIPILIH DEKAT JAWATAN LAIN & KEMASKINI INDICATOR
+    // FUNGSI SEMBUNYI CALON TERPILIH & KEMASKINI INDIKATOR
     function updateCandidateVisibilityAndBadges() {
       const allSelectedInputs = document.querySelectorAll('.vote-input:checked');
       
@@ -442,7 +474,6 @@
       });
 
       positions.forEach(pos => {
-        // Kemaskini Sembunyi Option
         studentsList.forEach(student => {
           const matrix = student.matrixNo;
           const label = document.querySelector(`.pos-input-${pos.id}[value="${matrix}"]`)?.closest('.candidate-label');
@@ -456,7 +487,6 @@
           }
         });
 
-        // Kemaskini Indicator / Lencana Status
         const currentCount = document.querySelectorAll(`.pos-input-${pos.id}:checked`).length;
         const badge = document.getElementById(`badge-${pos.id}`);
         
@@ -470,7 +500,7 @@
       });
     }
 
-    // Pasang Event Listener
+    // Pasang Event Listener Pilihan
     document.querySelectorAll('.vote-input').forEach(input => {
       input.addEventListener('change', (e) => {
         const posId = e.target.getAttribute('data-pos');
@@ -488,13 +518,26 @@
       });
     });
 
-    // 5. Semak Sama Ada Pengguna Dah Mengundi
-    let userVotesHistory = JSON.parse(localStorage.getItem('userVotesHistory')) || {};
-    let myCurrentVotes = userVotesHistory[currentUser.matrixNo] || null;
+    // 5. Semak Rekod Pengguna Dari FIRESTORE
+    let myCurrentVotes = null;
 
-    if (myCurrentVotes) {
-      showAlreadyVotedState();
+    async function checkUserVotesFromFirestore() {
+      try {
+        const userDocRef = doc(db, "user_votes", currentUser.matrixNo);
+        const docSnap = await getDoc(userDocRef);
+
+        if (docSnap.exists()) {
+          myCurrentVotes = docSnap.data().votes;
+          showAlreadyVotedState();
+        } else {
+          listenToLiveResults();
+        }
+      } catch (err) {
+        console.error("Ralat menyemak Firestore:", err);
+      }
     }
+
+    checkUserVotesFromFirestore();
 
     function showAlreadyVotedState() {
       document.getElementById('voteForm').style.display = 'none';
@@ -505,7 +548,7 @@
       badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Selesai Mengundi`;
 
       renderMyVotesSummary();
-      renderResults();
+      listenToLiveResults();
     }
 
     // 6. Papar Senarai Pilihan Saya
@@ -513,10 +556,8 @@
       const myVotesList = document.getElementById('myVotesList');
       myVotesList.innerHTML = '';
 
-      myCurrentVotes = userVotesHistory[currentUser.matrixNo] || {};
-
       positions.forEach(pos => {
-        const selectedMatrices = myCurrentVotes[pos.id] || [];
+        const selectedMatrices = (myCurrentVotes && myCurrentVotes[pos.id]) ? myCurrentVotes[pos.id] : [];
         const names = selectedMatrices.map(m => getStudentName(m)).join(', ') || 'Tiada pilihan';
 
         myVotesList.innerHTML += `
@@ -533,13 +574,10 @@
       document.getElementById('voteForm').style.display = 'block';
       document.getElementById('resultsContainer').style.display = 'none';
 
-      myCurrentVotes = userVotesHistory[currentUser.matrixNo] || {};
-
-      // Reset borang
       document.querySelectorAll('.vote-input').forEach(i => i.checked = false);
 
       positions.forEach(pos => {
-        const selectedMatrices = myCurrentVotes[pos.id] || [];
+        const selectedMatrices = (myCurrentVotes && myCurrentVotes[pos.id]) ? myCurrentVotes[pos.id] : [];
         selectedMatrices.forEach(matrix => {
           const input = document.querySelector(`.pos-input-${pos.id}[value="${matrix}"]`);
           if (input) input.checked = true;
@@ -550,13 +588,13 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // 8. Pengendali Penghantaran Borang (Penguatkuasaan Undian Cukup/Wajib)
-    document.getElementById('voteForm').addEventListener('submit', (e) => {
+    // 8. HANTAR BORANG KE FIRESTORE
+    document.getElementById('voteForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
       let unfulfilledPositions = [];
 
-      // Semak setiap jawatan mesti mencukupi jumlah kuota yang ditetapkan
+      // Semak kuota wajib
       positions.forEach(pos => {
         const selectedCount = document.querySelectorAll(`.pos-input-${pos.id}:checked`).length;
         if (selectedCount !== pos.required) {
@@ -574,101 +612,129 @@
       }
 
       alertBox.style.display = 'none';
+      const submitBtn = document.getElementById('submitVoteBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Menghantar Ke Firestore...`;
 
-      // Tolak undian lama jika dalam mod edit
-      let votesData = JSON.parse(localStorage.getItem('votesData')) || {};
-      const previousVotes = userVotesHistory[currentUser.matrixNo];
+      try {
+        const newMyVotes = {};
 
-      if (previousVotes) {
-        positions.forEach(pos => {
-          const oldList = previousVotes[pos.id] || [];
-          oldList.forEach(matrix => {
-            if (votesData[pos.id] && votesData[pos.id][matrix]) {
-              votesData[pos.id][matrix] -= 1;
+        // 1. Kurangkan undi lama di Firestore (Jika Edit)
+        if (myCurrentVotes) {
+          for (const pos of positions) {
+            const oldList = myCurrentVotes[pos.id] || [];
+            if (oldList.length > 0) {
+              const tallyRef = doc(db, "tally", pos.id);
+              const updateObject = {};
+              oldList.forEach(matrix => {
+                updateObject[matrix] = increment(-1);
+              });
+              await setDoc(tallyRef, updateObject, { merge: true });
             }
-          });
-        });
+          }
+        }
+
+        // 2. Tambah undi baharu di Firestore
+        for (const pos of positions) {
+          const selected = document.querySelectorAll(`.pos-input-${pos.id}:checked`);
+          newMyVotes[pos.id] = [];
+
+          if (selected.length > 0) {
+            const tallyRef = doc(db, "tally", pos.id);
+            const updateObject = {};
+
+            selected.forEach(input => {
+              const val = input.value;
+              newMyVotes[pos.id].push(val);
+              updateObject[val] = increment(1);
+            });
+
+            await setDoc(tallyRef, updateObject, { merge: true });
+          }
+        }
+
+        // 3. Simpan Rekod Pengguna
+        const userDocRef = doc(db, "user_votes", currentUser.matrixNo);
+        await setDoc(userDocRef, {
+          matrixNo: currentUser.matrixNo,
+          name: currentUser.name,
+          votes: newMyVotes,
+          updatedAt: new Date()
+        }, { merge: true });
+
+        myCurrentVotes = newMyVotes;
+        showAlreadyVotedState();
+
+      } catch (error) {
+        console.error("Ralat menyimpan undian:", error);
+        alertBox.innerHTML = `<strong>Gagal menyimpan undian:</strong> ${error.message}`;
+        alertBox.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Hantar Undian`;
       }
-
-      // Rekodkan undian BAHARU
-      const newMyVotes = {};
-      positions.forEach(pos => {
-        const selected = document.querySelectorAll(`.pos-input-${pos.id}:checked`);
-        newMyVotes[pos.id] = [];
-
-        if (!votesData[pos.id]) votesData[pos.id] = {};
-
-        selected.forEach(input => {
-          const val = input.value;
-          newMyVotes[pos.id].push(val);
-          votesData[pos.id][val] = (votesData[pos.id][val] || 0) + 1;
-        });
-      });
-
-      // Simpan data
-      userVotesHistory[currentUser.matrixNo] = newMyVotes;
-      localStorage.setItem('userVotesHistory', JSON.stringify(userVotesHistory));
-      localStorage.setItem('votesData', JSON.stringify(votesData));
-
-      showAlreadyVotedState();
     });
 
-    // 9. Fungsi Keputusan Keseluruhan
-    function renderResults() {
-      const votesData = JSON.parse(localStorage.getItem('votesData')) || {};
+    // 9. LISTEN KEPUTUSAN REAL-TIME DARI FIRESTORE
+    function listenToLiveResults() {
       const resultsContent = document.getElementById('resultsContent');
-      resultsContent.innerHTML = '';
 
       positions.forEach(pos => {
-        const posVotes = votesData[pos.id] || {};
-        
-        let totalVotesForPosition = 0;
-        Object.values(posVotes).forEach(count => totalVotesForPosition += count);
+        const tallyRef = doc(db, "tally", pos.id);
 
-        let html = `
-          <div class="position-card">
+        onSnapshot(tallyRef, (snapshot) => {
+          const posVotes = snapshot.exists() ? snapshot.data() : {};
+          
+          let totalVotesForPosition = 0;
+          Object.values(posVotes).forEach(count => {
+            if (count > 0) totalVotesForPosition += count;
+          });
+
+          let cardEl = document.getElementById(`result-card-${pos.id}`);
+          if (!cardEl) {
+            cardEl = document.createElement('div');
+            cardEl.id = `result-card-${pos.id}`;
+            cardEl.className = 'position-card';
+            resultsContent.appendChild(cardEl);
+          }
+
+          let html = `
             <div class="position-header">
               <div class="position-title">${pos.title}</div>
               <div class="position-limit">Jumlah Undi: ${totalVotesForPosition}</div>
             </div>
-        `;
+          `;
 
-        if (totalVotesForPosition === 0) {
-          html += `<p style="font-size:12px; color:#94a3b8;">Tiada undian direkodkan lagi.</p>`;
-        } else {
-          const sortedCandidates = studentsList.map(student => {
-            const count = posVotes[student.matrixNo] || 0;
-            const percentage = totalVotesForPosition > 0 ? ((count / totalVotesForPosition) * 100).toFixed(1) : 0;
-            return { name: student.name, count, percentage };
-          }).sort((a, b) => b.count - a.count);
+          if (totalVotesForPosition === 0) {
+            html += `<p style="font-size:12px; color:#94a3b8;">Tiada undian direkodkan lagi.</p>`;
+          } else {
+            const sortedCandidates = studentsList.map(student => {
+              const count = posVotes[student.matrixNo] || 0;
+              const validCount = count < 0 ? 0 : count; // Elak nilai negatif
+              const percentage = totalVotesForPosition > 0 ? ((validCount / totalVotesForPosition) * 100).toFixed(1) : 0;
+              return { name: student.name, count: validCount, percentage };
+            }).sort((a, b) => b.count - a.count);
 
-          sortedCandidates.forEach(cand => {
-            if (cand.count > 0) {
-              html += `
-                <div class="result-item">
-                  <div class="result-info">
-                    <span>${cand.name}</span>
-                    <span><strong>${cand.count} undi</strong> (${cand.percentage}%)</span>
+            sortedCandidates.forEach(cand => {
+              if (cand.count > 0) {
+                html += `
+                  <div class="result-item">
+                    <div class="result-info">
+                      <span>${cand.name}</span>
+                      <span><strong>${cand.count} undi</strong> (${cand.percentage}%)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                      <div class="progress-bar-fill" style="width: ${cand.percentage}%"></div>
+                    </div>
                   </div>
-                  <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" style="width: ${cand.percentage}%"></div>
-                  </div>
-                </div>
-              `;
-            }
-          });
-        }
+                `;
+              }
+            });
+          }
 
-        html += `</div>`;
-        resultsContent.innerHTML += html;
-      });
-
-      setTimeout(() => {
-        document.querySelectorAll('.progress-bar-fill').forEach(bar => {
-          const w = bar.getAttribute('style').match(/width:\s*([\d.]+)%/);
-          if (w) bar.style.width = w[1] + '%';
+          cardEl.innerHTML = html;
         });
-      }, 100);
+      });
     }
   </script>
 </body>
