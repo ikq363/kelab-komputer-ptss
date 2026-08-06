@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Pengurusan Program PTSS - Log Masuk</title>
+  
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: 0;
+      opacity: 0.5;
+    }
+    body::before {
+      background: #4f46e5;
+      top: -50px;
+      left: -50px;
+    }
+    body::after {
+      background: #c026d3;
+      bottom: -50px;
+      right: -50px;
+    }
+
+    .login-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 440px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.125);
+      border-radius: 24px;
+      padding: 40px 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .logo-container {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px auto;
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+      font-size: 28px;
+    }
+
+    .title-area h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+      background: linear-gradient(to right, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .title-area p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      font-size: 16px;
+      transition: color 0.3s ease;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      padding: 14px 16px 14px 44px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 500;
+      outline: none;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+
+    .input-wrapper input::placeholder {
+      color: #64748b;
+      text-transform: none;
+    }
+
+    .input-wrapper input:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15);
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .input-wrapper input:focus + i {
+      color: #a855f7;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 25px rgba(99, 102, 241, 0.4);
+      opacity: 0.95;
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    .alert-success {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #86efac;
+    }
+
+    .footer-text {
+      margin-top: 24px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    @media (max-width: 480px) {
+      .login-card {
+        padding: 30px 20px;
+      }
+      .title-area h2 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-card">
+    <div class="logo-container">
+      <i class="fa-solid fa-graduation-cap"></i>
+    </div>
+    
+    <div class="title-area">
+      <h2>Politeknik Tuanku Syed Sirajuddin</h2>
+      <p>Sistem Pengurusan Program PTSS & Kaunseling</p>
+    </div>
+
+    <div id="alertBox" class="alert"></div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="matrixNo">Nombor Matrik Pelajar</label>
+        <div class="input-wrapper">
+          <input type="text" id="matrixNo" placeholder="Contoh: 18DIT26F1128" required autocomplete="off">
+          <i class="fa-solid fa-id-card"></i>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">
+        <span>Log Masuk</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </form>
+
+    <div class="footer-text">
+      &copy; 2026 Kelab Komputer PTSS & Unit Kaunseling
+    </div>
+  </div>
+
+  <script>
+    // Senarai 30 Data Pelajar
+    const studentsList = [
+      { name: "MUHAMMAD IKQRAM ZULFIQQAR BIN IDRIS", matrixNo: "18DIT26F1128" },
+      { name: "Nurfarisha Binti Mohd Fairuz", matrixNo: "18DAC26F1024" },
+      { name: "Kishor A/L Lingeswaran", matrixNo: "18DPM26F1010" },
+      { name: "'Aliaa Husna binti mohammad izhar", matrixNo: "18DIT26F1135" },
+      { name: "MUHAMAD HARIES BIN MUHAMAD HAFIZ", matrixNo: "18DIT26F1103" },
+      { name: "NUR DAMIA NATASYA BINTI ABDULLAH", matrixNo: "18DIT26F1083" },
+      { name: "HANG HAN", matrixNo: "18DIT26F1075" },
+      { name: "Muhamad Afiq Aiman Bin Zulkipli", matrixNo: "18DIT26F1113" },
+      { name: "Nur Mimhah Mirza", matrixNo: "18DKE26F1150" },
+      { name: "Auni Syuhada Binti Salim", matrixNo: "18DIT26F1062" },
+      { name: "KIRANT a/p SIVA KUMAR", matrixNo: "18DIT26F1061" },
+      { name: "ONG ZI REN", matrixNo: "18DKE26F1016" },
+      { name: "WONG ZHENG YUAN", matrixNo: "18DKM26F1012" },
+      { name: "SITI NUR BAHIYYAH BINTI SUHAIZAM", matrixNo: "18DEP26F1097" },
+      { name: "ENG JO YAN", matrixNo: "18DEV26F1006" },
+      { name: "NUR KHAYRA DAMIA BINTI HASRUL NIZAM", matrixNo: "18DUP26F1054" },
+      { name: "LEE HAN JIN", matrixNo: "18DIT26F1033" },
+      { name: "MUHAMMAD IRFAN HARITH BIN MOHD HERMAN", matrixNo: "18DIT26F1067" },
+      { name: "YEOH CHENG YI", matrixNo: "18DIT26F1095" },
+      { name: "INTAN MARLIA SYAFINA BINTI ABU SEMAN", matrixNo: "18DUP26F1002" },
+      { name: "RUBASERI", matrixNo: "18DUP26F1023" },
+      { name: "MUHAMMAD DANIEL FIRDAUS BIN MUHAMAD SUFIAN", matrixNo: "18DEPF1064" },
+      { name: "CHING JIN ZHE", matrixNo: "18DIT26F1016" },
+      { name: "MUHAMMAD IMAN SYAQIRIEN BIN MOHD IZANI", matrixNo: "18DKE26F1109" },
+      { name: "NUR NAJLAA BINTI RAHMAN", matrixNo: "18DIT26F1036" },
+      { name: "ROSFARHANA BINTI SHAMSUDDIN", matrixNo: "18DEP26F1009" },
+      { name: "MUHAMMAD SHAHRIZAL BIN SHAHIDAN", matrixNo: "18DKE26F1057" },
+      { name: "NUR SYAHIRA BINTI KAMAL HISYAM", matrixNo: "18DEP26F1011" },
+      { name: "TEOH QIAN HOOI", matrixNo: "18DIT26F1017" },
+      { name: "ONG SIM LOK", matrixNo: "18DIT26F1127" }
+    ];
+
+    // Elemen DOM
+    const loginForm = document.getElementById('loginForm');
+    const matrixInput = document.getElementById('matrixNo');
+    const alertBox = document.getElementById('alertBox');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function showAlert(message, type) {
+      alertBox.textContent = message;
+      alertBox.className = `alert alert-${type}`;
+      alertBox.style.display = 'block';
+    }
+
+    // Pengendali Log Masuk Tempatan
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inputMatrix = matrixInput.value.trim().toUpperCase();
+
+      if (!inputMatrix) {
+        showAlert("Sila masukkan Nombor Matrik anda.", "error");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span>Menyemak...</span>`;
+
+      // Carian terus dalam array tempatan
+      const foundStudent = studentsList.find(
+        (student) => student.matrixNo.toUpperCase() === inputMatrix
+      );
+
+      if (foundStudent) {
+        showAlert(`Selamat Datang, ${foundStudent.name}!`, "success");
+        
+        // Simpan maklumat pelajar ke localStorage
+        localStorage.setItem("userSession", JSON.stringify(foundStudent));
+
+        // Lencongkan ke dashboard selepas 1 saat
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 1000);
+      } else {
+        showAlert("Nombor Matrik tidak dijumpai dalam rekod.", "error");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<span>Log Masuk</span> <i class="fa-solid fa-arrow-right"></i>`;
+      }
+    });
+  </script>
+</body>
+</html>
