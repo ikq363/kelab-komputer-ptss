@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Undian AJK Program PTSS</title>
+  
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+      padding: 30px 15px;
+      color: #ffffff;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.125);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .user-info h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .user-info p {
+      font-size: 13px;
+      color: #a855f7;
+      font-weight: 600;
+    }
+
+    .status-badge {
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-pending {
+      background: rgba(234, 179, 8, 0.2);
+      color: #fde047;
+      border: 1px solid rgba(234, 179, 8, 0.4);
+    }
+
+    .badge-voted {
+      background: rgba(34, 197, 94, 0.2);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .position-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .position-header {
+      margin-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 10px;
+    }
+
+    .position-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #818cf8;
+    }
+
+    .position-limit {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .candidates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+      max-height: 250px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .candidates-grid::-webkit-scrollbar {
+      width: 6px;
+    }
+    .candidates-grid::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+
+    .candidate-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 12px;
+    }
+
+    .candidate-label:hover {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: #6366f1;
+    }
+
+    .candidate-label.hidden-option {
+      display: none !important;
+    }
+
+    .candidate-label input[type="radio"],
+    .candidate-label input[type="checkbox"] {
+      accent-color: #a855f7;
+      width: 16px;
+      height: 16px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 25px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-edit {
+      background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+      margin-bottom: 25px;
+    }
+
+    /* Kad Summary Pilihan Saya */
+    .my-votes-card {
+      background: rgba(168, 85, 247, 0.1);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .my-vote-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 13px;
+    }
+
+    .my-vote-row:last-child {
+      border-bottom: none;
+    }
+
+    .my-vote-position {
+      color: #a855f7;
+      font-weight: 600;
+      width: 40%;
+    }
+
+    .my-vote-names {
+      color: #f8fafc;
+      font-weight: 500;
+      width: 60%;
+      text-align: right;
+    }
+
+    /* Bahagian Keputusan / Peratusan */
+    .results-container {
+      display: none;
+    }
+
+    .result-item {
+      margin-bottom: 12px;
+    }
+
+    .result-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #a855f7);
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Kad Profil Pengguna -->
+    <div class="header-card">
+      <div class="user-info">
+        <h1 id="userName">NAMA PELAJAR</h1>
+        <p id="userMatrix">NOMBOR MATRIK</p>
+      </div>
+      <div id="statusBadge" class="status-badge badge-pending">
+        <i class="fa-solid fa-clock"></i> Belum Mengundi
+      </div>
+    </div>
+
+    <div id="alertBox" class="alert alert-error"></div>
+
+    <!-- BORANG UNDIAN -->
+    <form id="voteForm">
+      <div class="section-title">
+        <i class="fa-solid fa-check-to-slot"></i> Borang Undian Jawatankuasa
+      </div>
+
+      <div id="positionsContainer"></div>
+
+      <button type="submit" class="btn-submit" id="submitVoteBtn">
+        <i class="fa-solid fa-paper-plane"></i> Hantar Undian
+      </button>
+    </form>
+
+    <!-- PAPARAN KEPUTUSAN & PILIHAN SAYA -->
+    <div id="resultsContainer" class="results-container">
+      
+      <!-- Ringkasan Pilihan Saya -->
+      <div class="my-votes-card">
+        <div class="section-title" style="margin-bottom: 15px; color: #a855f7;">
+          <i class="fa-solid fa-user-check"></i> Undian Yang Telah Anda Pilih
+        </div>
+        <div id="myVotesList"></div>
+      </div>
+
+      <button type="button" class="btn-submit btn-edit" id="editVoteBtn">
+        <i class="fa-solid fa-pen-to-square"></i> Kemaskini / Edit Undian Anda
+      </button>
+
+      <!-- Peratusan Keseluruhan -->
+      <div class="section-title">
+        <i class="fa-solid fa-chart-pie"></i> Keputusan & Peratusan Undian Semasa
+      </div>
+      <div id="resultsContent"></div>
+    </div>
+  </div>
+
+  <script>
+    // 1. Semak Pengguna Log Masuk
+    const currentUser = JSON.parse(localStorage.getItem('userSession'));
+    if (!currentUser) {
+      window.location.href = 'index.html';
+    } else {
+      document.getElementById('userName').textContent = currentUser.name;
+      document.getElementById('userMatrix').textContent = currentUser.matrixNo;
+    }
+
+    // 2. Senarai 30 Pelajar
+    const studentsList = [
+      { name: "MUHAMMAD IKQRAM ZULFIQQAR BIN IDRIS", matrixNo: "18DIT26F1128" },
+      { name: "NURFARISHA BINTI MOHD FAIRUZ", matrixNo: "18DAC26F1024" },
+      { name: "KISHOR A/L LINGESWARAN", matrixNo: "18DPM26F1010" },
+      { name: "'ALIAA HUSNA BINTI MOHAMMAD IZHAR", matrixNo: "18DIT26F1135" },
+      { name: "MUHAMAD HARIES BIN MUHAMAD HAFIZ", matrixNo: "18DIT26F1103" },
+      { name: "NUR DAMIA NATASYA BINTI ABDULLAH", matrixNo: "18DIT26F1083" },
+      { name: "HANG HAN", matrixNo: "18DIT26F1075" },
+      { name: "MUHAMAD AFIQ AIMAN BIN ZULKIPLI", matrixNo: "18DIT26F1113" },
+      { name: "NUR MIMHAH MIRZA", matrixNo: "18DKE26F1150" },
+      { name: "AUNI SYUHADA BINTI SALIM", matrixNo: "18DIT26F1062" },
+      { name: "KIRANT A/P SIVA KUMAR", matrixNo: "18DIT26F1061" },
+      { name: "ONG ZI REN", matrixNo: "18DKE26F1016" },
+      { name: "WONG ZHENG YUAN", matrixNo: "18DKM26F1012" },
+      { name: "SITI NUR BAHIYYAH BINTI SUHAIZAM", matrixNo: "18DEP26F1097" },
+      { name: "ENG JO YAN", matrixNo: "18DEV26F1006" },
+      { name: "NUR KHAYRA DAMIA BINTI HASRUL NIZAM", matrixNo: "18DUP26F1054" },
+      { name: "LEE HAN JIN", matrixNo: "18DIT26F1033" },
+      { name: "MUHAMMAD IRFAN HARITH BIN MOHD HERMAN", matrixNo: "18DIT26F1067" },
+      { name: "YEOH CHENG YI", matrixNo: "18DIT26F1095" },
+      { name: "INTAN MARLIA SYAFINA BINTI ABU SEMAN", matrixNo: "18DUP26F1002" },
+      { name: "RUBASERI", matrixNo: "18DUP26F1023" },
+      { name: "MUHAMMAD DANIEL FIRDAUS BIN MUHAMAD SUFIAN", matrixNo: "18DEPF1064" },
+      { name: "CHING JIN ZHE", matrixNo: "18DIT26F1016" },
+      { name: "MUHAMMAD IMAN SYAQIRIEN BIN MOHD IZANI", matrixNo: "18DKE26F1109" },
+      { name: "NUR NAJLAA BINTI RAHMAN", matrixNo: "18DIT26F1036" },
+      { name: "ROSFARHANA BINTI SHAMSUDDIN", matrixNo: "18DEP26F1009" },
+      { name: "MUHAMMAD SHAHRIZAL BIN SHAHIDAN", matrixNo: "18DKE26F1057" },
+      { name: "NUR SYAHIRA BINTI KAMAL HISYAM", matrixNo: "18DEP26F1011" },
+      { name: "TEOH QIAN HOOI", matrixNo: "18DIT26F1017" },
+      { name: "ONG SIM LOK", matrixNo: "18DIT26F1127" }
+    ];
+
+    // Helper untuk cari nama berdasarkan matrixNo
+    const getStudentName = (matrix) => {
+      const found = studentsList.find(s => s.matrixNo === matrix);
+      return found ? found.name : matrix;
+    };
+
+    // 3. Senarai Jawatan & Had Pilihan
+    const positions = [
+      { id: "pengarah", title: "PENGARAH PROGRAM", max: 1 },
+      { id: "pen_pengarah", title: "PENOLONG PENGARAH PROGRAM", max: 1 },
+      { id: "setiausaha", title: "SETIAUSAHA", max: 1 },
+      { id: "rekabentuk", title: "JAWATANKUASA REKABENTUK & HEBAHAN", max: 2 },
+      { id: "perlaksanaan", title: "JAWATANKUASA PERLAKSAAN PROGRAM", max: 2 },
+      { id: "pendaftaran", title: "JAWATANKUASA PENDAFTARAN", max: 2 },
+      { id: "fotografi", title: "JAWATANKUASA FOTOGRAFI & TEKNIKAL", max: 2 },
+      { id: "aktiviti", title: "JAWATANKUASA PERLAKSANAAN AKTIVITI", max: 18 }
+    ];
+
+    // 4. Bina Borang Secara Dinamik
+    const container = document.getElementById('positionsContainer');
+
+    positions.forEach(pos => {
+      const card = document.createElement('div');
+      card.className = 'position-card';
+
+      const limitText = pos.max === 1 ? 'Pilih 1 Orang' : `Pilih Maksimum ${pos.max} Orang`;
+
+      let candidatesHTML = '';
+      studentsList.forEach(student => {
+        const inputType = pos.max === 1 ? 'radio' : 'checkbox';
+        candidatesHTML += `
+          <label class="candidate-label label-matrix-${student.matrixNo}">
+            <input type="${inputType}" name="${pos.id}" value="${student.matrixNo}" data-max="${pos.max}" data-pos="${pos.id}" class="vote-input pos-input-${pos.id}">
+            <span>${student.name}</span>
+          </label>
+        `;
+      });
+
+      card.innerHTML = `
+        <div class="position-header">
+          <div class="position-title">${pos.title}</div>
+          <div class="position-limit">${limitText}</div>
+        </div>
+        <div class="candidates-grid">
+          ${candidatesHTML}
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+
+    // FUNGSI UNTUK MENYEMBUNYIKAN NAMA CALON YANG DAH DIPILIH DEKAT JAWATAN LAIN
+    function updateCandidateVisibility() {
+      // Dapatkan semua pilihan yang telah dicentang dalam borang
+      const allSelectedInputs = document.querySelectorAll('.vote-input:checked');
+      
+      // Simpan matriks ID yang telah dipilih dan lokasi jawatannya
+      const selectedMap = {}; // { matrixNo: positionId }
+      allSelectedInputs.forEach(input => {
+        selectedMap[input.value] = input.getAttribute('data-pos');
+      });
+
+      // Kemaskini semula paparan semua jawatan
+      positions.forEach(pos => {
+        studentsList.forEach(student => {
+          const matrix = student.matrixNo;
+          // Cari label khusus untuk calon dan jawatan ini
+          const label = document.querySelector(`.pos-input-${pos.id}[value="${matrix}"]`)?.closest('.candidate-label');
+          
+          if (label) {
+            // Jika calon ini dipilih di jawatan LAIN, sembunyikan dia di jawatan INI
+            if (selectedMap[matrix] && selectedMap[matrix] !== pos.id) {
+              label.classList.add('hidden-option');
+            } else {
+              label.classList.remove('hidden-option');
+            }
+          }
+        });
+      });
+    }
+
+    // Pasang Event Listener pada setiap Radio / Checkbox
+    document.querySelectorAll('.vote-input').forEach(input => {
+      input.addEventListener('change', (e) => {
+        const posId = e.target.getAttribute('data-pos');
+        const max = parseInt(e.target.getAttribute('data-max'));
+
+        // Kawalan had maksimum bagi checkbox
+        if (max > 1) {
+          const checkedCount = document.querySelectorAll(`.pos-input-${posId}:checked`).length;
+          if (checkedCount > max) {
+            e.target.checked = false;
+            alert(`Anda hanya boleh memilih maksimum ${max} orang untuk jawatan ini.`);
+          }
+        }
+
+        // Kemaskini ketersediaan calon di jawatan lain
+        updateCandidateVisibility();
+      });
+    });
+
+    // 5. Semak Sama Ada Pengguna Dah Mengundi Sebelumnya
+    let userVotesHistory = JSON.parse(localStorage.getItem('userVotesHistory')) || {};
+    let myCurrentVotes = userVotesHistory[currentUser.matrixNo] || null;
+
+    if (myCurrentVotes) {
+      showAlreadyVotedState();
+    }
+
+    function showAlreadyVotedState() {
+      document.getElementById('voteForm').style.display = 'none';
+      document.getElementById('resultsContainer').style.display = 'block';
+      
+      const badge = document.getElementById('statusBadge');
+      badge.className = 'status-badge badge-voted';
+      badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Selesai Mengundi`;
+
+      renderMyVotesSummary();
+      renderResults();
+    }
+
+    // 6. Papar Senarai Calon Yang Telah Diundi Oleh Pengguna
+    function renderMyVotesSummary() {
+      const myVotesList = document.getElementById('myVotesList');
+      myVotesList.innerHTML = '';
+
+      myCurrentVotes = userVotesHistory[currentUser.matrixNo] || {};
+
+      positions.forEach(pos => {
+        const selectedMatrices = myCurrentVotes[pos.id] || [];
+        const names = selectedMatrices.map(m => getStudentName(m)).join(', ') || 'Tiada pilihan';
+
+        myVotesList.innerHTML += `
+          <div class="my-vote-row">
+            <span class="my-vote-position">${pos.title}</span>
+            <span class="my-vote-names">${names}</span>
+          </div>
+        `;
+      });
+    }
+
+    // 7. Mod Edit Undian
+    document.getElementById('editVoteBtn').addEventListener('click', () => {
+      document.getElementById('voteForm').style.display = 'block';
+      document.getElementById('resultsContainer').style.display = 'none';
+
+      // Load balik pilihan lama pengguna ke borang
+      myCurrentVotes = userVotesHistory[currentUser.matrixNo] || {};
+
+      // Reset borang
+      document.querySelectorAll('.vote-input').forEach(i => i.checked = false);
+
+      positions.forEach(pos => {
+        const selectedMatrices = myCurrentVotes[pos.id] || [];
+        selectedMatrices.forEach(matrix => {
+          const input = document.querySelector(`.pos-input-${pos.id}[value="${matrix}"]`);
+          if (input) input.checked = true;
+        });
+      });
+
+      // Refresh elemen sembunyi
+      updateCandidateVisibility();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // 8. Pengendali Penghantaran Borang Undian
+    document.getElementById('voteForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // Semak sama ada semua jawatan sudah diundi
+      for (let pos of positions) {
+        const selected = document.querySelectorAll(`.pos-input-${pos.id}:checked`);
+        if (selected.length === 0) {
+          const alertBox = document.getElementById('alertBox');
+          alertBox.textContent = `Sila buat sekurang-kurangnya 1 pilihan untuk ${pos.title}.`;
+          alertBox.style.display = 'block';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+      }
+
+      document.getElementById('alertBox').style.display = 'none';
+
+      // Tolak undian lama pengguna (jika ini tindakan Edit) dari simpanan global
+      let votesData = JSON.parse(localStorage.getItem('votesData')) || {};
+      const previousVotes = userVotesHistory[currentUser.matrixNo];
+
+      if (previousVotes) {
+        positions.forEach(pos => {
+          const oldList = previousVotes[pos.id] || [];
+          oldList.forEach(matrix => {
+            if (votesData[pos.id] && votesData[pos.id][matrix]) {
+              votesData[pos.id][matrix] -= 1;
+            }
+          });
+        });
+      }
+
+      // Rekodkan undian BAHARU
+      const newMyVotes = {};
+      positions.forEach(pos => {
+        const selected = document.querySelectorAll(`.pos-input-${pos.id}:checked`);
+        newMyVotes[pos.id] = [];
+
+        if (!votesData[pos.id]) votesData[pos.id] = {};
+
+        selected.forEach(input => {
+          const val = input.value;
+          newMyVotes[pos.id].push(val);
+          votesData[pos.id][val] = (votesData[pos.id][val] || 0) + 1;
+        });
+      });
+
+      // Simpan data terkini ke LocalStorage
+      userVotesHistory[currentUser.matrixNo] = newMyVotes;
+      localStorage.setItem('userVotesHistory', JSON.stringify(userVotesHistory));
+      localStorage.setItem('votesData', JSON.stringify(votesData));
+
+      // Tunjuk paparan keputusan
+      showAlreadyVotedState();
+    });
+
+    // 9. Fungsi Pengiraan Peratusan & Paparan Keputusan Keseluruhan
+    function renderResults() {
+      const votesData = JSON.parse(localStorage.getItem('votesData')) || {};
+      const resultsContent = document.getElementById('resultsContent');
+      resultsContent.innerHTML = '';
+
+      positions.forEach(pos => {
+        const posVotes = votesData[pos.id] || {};
+        
+        let totalVotesForPosition = 0;
+        Object.values(posVotes).forEach(count => totalVotesForPosition += count);
+
+        let html = `
+          <div class="position-card">
+            <div class="position-header">
+              <div class="position-title">${pos.title}</div>
+              <div class="position-limit">Jumlah Undi Diterima: ${totalVotesForPosition}</div>
+            </div>
+        `;
+
+        if (totalVotesForPosition === 0) {
+          html += `<p style="font-size:12px; color:#94a3b8;">Tiada undian direkodkan lagi.</p>`;
+        } else {
+          const sortedCandidates = studentsList.map(student => {
+            const count = posVotes[student.matrixNo] || 0;
+            const percentage = totalVotesForPosition > 0 ? ((count / totalVotesForPosition) * 100).toFixed(1) : 0;
+            return { name: student.name, count, percentage };
+          }).sort((a, b) => b.count - a.count);
+
+          sortedCandidates.forEach(cand => {
+            if (cand.count > 0) {
+              html += `
+                <div class="result-item">
+                  <div class="result-info">
+                    <span>${cand.name}</span>
+                    <span><strong>${cand.count} undi</strong> (${cand.percentage}%)</span>
+                  </div>
+                  <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="style: width: ${cand.percentage}%"></div>
+                  </div>
+                </div>
+              `;
+            }
+          });
+        }
+
+        html += `</div>`;
+        resultsContent.innerHTML += html;
+      });
+
+      // Animasi bar keputusan
+      setTimeout(() => {
+        document.querySelectorAll('.progress-bar-fill').forEach(bar => {
+          const w = bar.getAttribute('style').match(/width:\s*([\d.]+)%/);
+          if (w) bar.style.width = w[1] + '%';
+        });
+      }, 100);
+    }
+  </script>
+</body>
+</html>
