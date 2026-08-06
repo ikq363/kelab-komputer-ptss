@@ -234,6 +234,13 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .status-pill.official {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #4ade80;
     }
 
     .live-dot {
@@ -242,6 +249,11 @@
       background-color: #ef4444;
       border-radius: 50%;
       animation: pulse 1.5s infinite;
+    }
+
+    .status-pill.official .live-dot {
+      background-color: #22c55e;
+      animation: none;
     }
 
     @keyframes pulse {
@@ -260,7 +272,6 @@
       font-weight: 700;
     }
 
-    /* Grid Carta Organisasi */
     .org-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -336,7 +347,6 @@
 <body>
 
   <div class="container">
-    <!-- Header Kotak Profil Pelajar -->
     <header class="profile-card">
       <div class="profile-info">
         <div class="profile-avatar">
@@ -363,7 +373,6 @@
       </button>
     </header>
 
-    <!-- Ruang Utama Dashboard -->
     <main class="dashboard-content">
       <div class="welcome-banner">
         <h2>Selamat Datang ke Dashboard</h2>
@@ -377,105 +386,62 @@
       </div>
     </main>
 
-    <!-- Seksyen Carta Organisasi Live -->
     <section class="org-section">
       <div class="org-header">
         <div class="org-title">
           <i class="fa-solid fa-sitemap" style="color: #a855f7;"></i>
           <span>Carta Organisasi Semasa</span>
         </div>
-        <div class="status-pill">
+        <div class="status-pill" id="officialStatusPill">
           <div class="live-dot"></div>
-          <span>KEPUTUSAN TIDAK RASMI</span>
+          <span id="statusText">KEPUTUSAN TIDAK RASMI</span>
         </div>
         <div class="total-votes-count">
-          Jumlah Selesai Mengundi: <span id="totalVotersCount">0</span> Pelajar
+          Selesai Mengundi: <span id="votedCount">0</span> / <span id="totalStudentsCount">30</span> Pelajar
         </div>
       </div>
 
-      <!-- Paparan Pemimpin Semasa Mengikut Jawatan -->
       <div class="org-grid">
-        <!-- Pengarah Program -->
         <div class="org-card top-lead">
-          <div class="role-title">
-            <span>Pengarah Program</span>
-            <span class="quota-badge">1 Orang</span>
-          </div>
+          <div class="role-title"><span>Pengarah Program</span><span class="quota-badge">1 Orang</span></div>
           <div id="pengarahContainer">Memuatkan...</div>
         </div>
-
-        <!-- Penolong Pengarah Program -->
         <div class="org-card">
-          <div class="role-title">
-            <span>Penolong Pengarah Program</span>
-            <span class="quota-badge">1 Orang</span>
-          </div>
+          <div class="role-title"><span>Penolong Pengarah Program</span><span class="quota-badge">1 Orang</span></div>
           <div id="penolongContainer">Memuatkan...</div>
         </div>
-
-        <!-- Setiausaha -->
         <div class="org-card">
-          <div class="role-title">
-            <span>Setiausaha</span>
-            <span class="quota-badge">1 Orang</span>
-          </div>
+          <div class="role-title"><span>Setiausaha</span><span class="quota-badge">1 Orang</span></div>
           <div id="setiausahaContainer">Memuatkan...</div>
         </div>
-
-        <!-- Jawatankuasa Rekabentuk & Hebahan -->
         <div class="org-card">
-          <div class="role-title">
-            <span>JK Rekabentuk & Hebahan</span>
-            <span class="quota-badge">2 Orang</span>
-          </div>
+          <div class="role-title"><span>JK Rekabentuk & Hebahan</span><span class="quota-badge">2 Orang</span></div>
           <div id="rekabentukContainer">Memuatkan...</div>
         </div>
-
-        <!-- Jawatankuasa Perlaksanaan Program -->
         <div class="org-card">
-          <div class="role-title">
-            <span>JK Perlaksanaan Program</span>
-            <span class="quota-badge">2 Orang</span>
-          </div>
+          <div class="role-title"><span>JK Perlaksanaan Program</span><span class="quota-badge">2 Orang</span></div>
           <div id="perlaksanaanContainer">Memuatkan...</div>
         </div>
-
-        <!-- Jawatankuasa Pendaftaran -->
         <div class="org-card">
-          <div class="role-title">
-            <span>JK Pendaftaran</span>
-            <span class="quota-badge">2 Orang</span>
-          </div>
+          <div class="role-title"><span>JK Pendaftaran</span><span class="quota-badge">2 Orang</span></div>
           <div id="pendaftaranContainer">Memuatkan...</div>
         </div>
-
-        <!-- Jawatankuasa Fotografi & Teknikal -->
         <div class="org-card">
-          <div class="role-title">
-            <span>JK Fotografi & Teknikal</span>
-            <span class="quota-badge">2 Orang</span>
-          </div>
+          <div class="role-title"><span>JK Fotografi & Teknikal</span><span class="quota-badge">2 Orang</span></div>
           <div id="fotografiContainer">Memuatkan...</div>
         </div>
-
-        <!-- Jawatankuasa Perlaksanaan Aktiviti -->
         <div class="org-card">
-          <div class="role-title">
-            <span>JK Perlaksanaan Aktiviti</span>
-            <span class="quota-badge">Selebihnya</span>
-          </div>
+          <div class="role-title"><span>JK Perlaksanaan Aktiviti</span><span class="quota-badge">Baki Calon</span></div>
           <div id="aktivitiContainer">Memuatkan...</div>
         </div>
       </div>
     </section>
   </div>
 
-  <!-- Firebase Integration Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBLj5KhjrWRh9mGkHHArkhL7fKGhylrbTQ",
       authDomain: "kelab-komputer-ptss.firebaseapp.com",
@@ -486,40 +452,39 @@
       measurementId: "G-7BZDXS41V8"
     };
 
-    // Initialize Firebase Services
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Semak Sesi Pengguna
     const userSession = localStorage.getItem("userSession");
 
     if (!userSession) {
       window.location.href = "index.html";
     } else {
       const student = JSON.parse(userSession);
-      document.getElementById("studentName").textContent = student.name || "Pelajar";
-      document.getElementById("studentMatrix").textContent = student.matrixNo || "---";
+      const matrixNo = (student.matrixNo || "").trim().toUpperCase();
 
-      checkStudentStatus(student.matrixNo);
+      document.getElementById("studentName").textContent = student.name || "Pelajar";
+      document.getElementById("studentMatrix").textContent = matrixNo || "---";
+
+      listenStudentStatus(matrixNo);
       listenLiveResults();
     }
 
-    // Semak Status Pengundian Serta-Merta dari Firestore
-    async function checkStudentStatus(matrixNo) {
-      try {
-        const studentRef = doc(db, "registered_students", matrixNo);
-        const docSnap = await getDoc(studentRef);
+    // 1. Dengar Real-time Status Diri Pelajar
+    function listenStudentStatus(matrixNo) {
+      const studentRef = doc(db, "registered_students", matrixNo);
 
+      onSnapshot(studentRef, (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
-          document.getElementById("studentName").textContent = data.name;
+          document.getElementById("studentName").textContent = data.name || "Pelajar";
 
           const userBadge = document.getElementById("userVoteBadge");
           const votingBtn = document.getElementById("votingBtn");
           const votingBtnText = document.getElementById("votingBtnText");
           const votingArrow = document.getElementById("votingArrow");
 
-          if (data.hasVoted) {
+          if (data.hasVoted === true) {
             userBadge.className = "vote-status-badge voted";
             userBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>Sudah Mengundi</span>`;
 
@@ -532,74 +497,103 @@
             userBadge.innerHTML = `<i class="fa-solid fa-clock"></i><span>Belum Mengundi</span>`;
           }
         } else {
-          localStorage.removeItem("userSession");
-          window.location.href = "index.html";
+          console.warn("Dokumen pelajar tidak wujud di Firestore bagi Matrix:", matrixNo);
         }
-      } catch (err) {
-        console.error("Ralat menyemak status pengundi:", err);
-      }
+      }, (err) => {
+        console.error("Ralat listener pelajar:", err);
+      });
     }
 
-    // Mendengar Perubahan Undian secara Real-time
+    // 2. Dengar Real-time Keputusan Undian & Mengira Pengundi
     function listenLiveResults() {
-      // 1. Kira Jumlah Pengundi yang Selesai Mengundi
+      const TARGET_VOTERS = 30; // Tetapan 30 Pelajar
+
+      // Kira pengundi dari koleksi registered_students
       const studentsRef = collection(db, "registered_students");
-      const qVoted = query(studentsRef, where("hasVoted", "==", true));
-      
-      onSnapshot(qVoted, (snapshot) => {
-        document.getElementById("totalVotersCount").textContent = snapshot.size;
-      }, (error) => {
-        console.error("Ralat listener pengundi:", error);
+      onSnapshot(studentsRef, (snapshot) => {
+        let votedCount = 0;
+
+        snapshot.forEach((doc) => {
+          if (doc.data().hasVoted === true) {
+            votedCount++;
+          }
+        });
+
+        document.getElementById("votedCount").textContent = votedCount;
+        document.getElementById("totalStudentsCount").textContent = TARGET_VOTERS;
+
+        const statusPill = document.getElementById("officialStatusPill");
+        const statusText = document.getElementById("statusText");
+
+        if (votedCount >= TARGET_VOTERS) {
+          statusPill.classList.add("official");
+          statusText.textContent = "KEPUTUSAN RASMI";
+        } else {
+          statusPill.classList.remove("official");
+          statusText.textContent = "KEPUTUSAN TIDAK RASMI";
+        }
       });
 
-      // 2. Muat Naik Keputusan Undian Calon mengikut Jawatan
+      // Muat naik calon mengikut jawatan
       const candidatesRef = collection(db, "candidates");
       onSnapshot(candidatesRef, (snapshot) => {
         const candidates = [];
         snapshot.forEach((doc) => {
-          candidates.push({ id: doc.id, ...doc.data() });
+          const item = doc.data();
+          candidates.push({ id: doc.id, ...item });
         });
 
-        updateRoleLeaders(candidates, "Pengarah Program", "pengarahContainer", 1);
-        updateRoleLeaders(candidates, "Penolong Pengarah Program", "penolongContainer", 1);
-        updateRoleLeaders(candidates, "Setiausaha", "setiausahaContainer", 1);
-        updateRoleLeaders(candidates, "Jawatankuasa Rekabentuk & Hebahan", "rekabentukContainer", 2);
-        updateRoleLeaders(candidates, "Jawatankuasa Perlaksanaan Program", "perlaksanaanContainer", 2);
-        updateRoleLeaders(candidates, "Jawatankuasa Pendaftaran", "pendaftaranContainer", 2);
-        updateRoleLeaders(candidates, "Jawatankuasa Fotografi & Teknikal", "fotografiContainer", 2);
-        updateRoleLeaders(candidates, "Jawatankuasa Perlaksanaan Aktiviti", "aktivitiContainer", 99);
-      }, (error) => {
-        console.error("Ralat listener calon:", error);
+        // CETAK KETUA DATA CALON KE CONSOLE BROWSER UNTUK DEBUGGING
+        console.log("=== DATA CALON DARI FIRESTORE ===", candidates);
+
+        updateRoleLeaders(candidates, ["Pengarah Program", "Pengarah"], "pengarahContainer", 1);
+        updateRoleLeaders(candidates, ["Penolong Pengarah Program", "Penolong Pengarah"], "penolongContainer", 1);
+        updateRoleLeaders(candidates, ["Setiausaha"], "setiausahaContainer", 1);
+        updateRoleLeaders(candidates, ["Jawatankuasa Rekabentuk & Hebahan", "JK Rekabentuk & Hebahan", "Rekabentuk"], "rekabentukContainer", 2);
+        updateRoleLeaders(candidates, ["Jawatankuasa Perlaksanaan Program", "JK Perlaksanaan Program", "Perlaksanaan Program"], "perlaksanaanContainer", 2);
+        updateRoleLeaders(candidates, ["Jawatankuasa Pendaftaran", "JK Pendaftaran", "Pendaftaran"], "pendaftaranContainer", 2);
+        updateRoleLeaders(candidates, ["Jawatankuasa Fotografi & Teknikal", "JK Fotografi & Teknikal", "Fotografi"], "fotografiContainer", 2);
+        updateRoleLeaders(candidates, ["Jawatankuasa Perlaksanaan Aktiviti", "JK Perlaksanaan Aktiviti", "Aktiviti"], "aktivitiContainer", 999);
       });
     }
 
-    // Kemaskini Paparan Calon Teratas mengikut Kuota
-    function updateRoleLeaders(candidates, roleName, containerId, quota) {
+    // Kemaskini Carta Organisasi (Fleksibel mengikut sebarang variasi jawatan)
+    function updateRoleLeaders(candidates, roleAliases, containerId, quota) {
       const container = document.getElementById(containerId);
       if (!container) return;
 
-      const filtered = candidates.filter(c => c.position === roleName);
+      // Padankan nama jawatan tanpa mengira huruf besar/kecil
+      const filtered = candidates.filter(c => {
+        if (!c.position) return false;
+        const posClean = c.position.toString().trim().toLowerCase();
+        return roleAliases.some(alias => alias.toLowerCase() === posClean);
+      });
 
       if (filtered.length > 0) {
-        filtered.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+        filtered.sort((a, b) => {
+          const voteA = Number(a.votes || 0);
+          const voteB = Number(b.votes || 0);
+          if (voteB !== voteA) return voteB - voteA;
+          return (a.name || "").localeCompare(b.name || "");
+        });
+
         const winners = filtered.slice(0, quota);
 
         let html = "";
         winners.forEach(w => {
           html += `
             <div class="winner-item">
-              <span class="winner-name">${w.name || 'Calon'}</span>
+              <span class="winner-name">${w.name || 'Nama Calon'}</span>
               <span class="winner-votes">${w.votes || 0} undi</span>
             </div>
           `;
         });
         container.innerHTML = html;
       } else {
-        container.innerHTML = `<div style="font-size:12px; color:#64748b;">Tiada data undian</div>`;
+        container.innerHTML = `<div style="font-size:12px; color:#64748b;">Tiada calon didaftarkan</div>`;
       }
     }
 
-    // Fungsi Log Keluar
     document.getElementById("logoutBtn").addEventListener("click", () => {
       localStorage.removeItem("userSession");
       window.location.href = "index.html";
